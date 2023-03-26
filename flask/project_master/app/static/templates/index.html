@@ -4,21 +4,24 @@
     <title>Clínica Dental Sonrisa Perfecta</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='static/css/style.css') }}">
+
   </head>
   <body>
-    <header>
-      <h1>Clínica Dental Sonrisa Perfecta</h1>
-      <nav>
-        <ul>
-          <li><a href="#">Inicio</a></li>
-          <li><a href="pacientes.html">Servicios</a></li>
-          <li><a href="#">Equipo</a></li>
-          <li><a href="#">Contacto</a></li>
-        </ul>
-      </nav>
-    </header>
     <main>
+
+    <!-- Barra de navegación -->
+	  <nav>
+      <!-- Título a la izquierda -->
+      <h1>Gestión Clínica Dental</h1>
+      <!-- Botones a la derecha -->
+      <div>
+        <a href="#">Inicio</a>
+        <a href="#">Servicios</a>
+        <a href="#">Contacto</a>
+      </div>
+	  </nav>
+
       <section>
         <h2>Bienvenido a nuestra clínica dental</h2>
         <p>En Clínica Dental Sonrisa Perfecta nos esforzamos por ofrecer una atención personalizada y de calidad a cada uno de nuestros pacientes.</p>
@@ -45,6 +48,7 @@
           <li>Dr. David Martínez</li>
         </ul>
       </section>
+      <hr>
       <section>
         <h2>Contacto</h2>
         <p>Estamos ubicados en la Calle Principal 123, en la ciudad de Ejemplo.</p>
