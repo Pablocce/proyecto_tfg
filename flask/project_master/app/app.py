@@ -6,34 +6,7 @@ app = Flask(__name__)
 #decoramos para indicar que se liga a la ruta raiz
 def index():
     #render_template sirve para renderizar los hmtl
-    return render_template("index.html")
-
-
-@app.route('/agenda')
-def agenda():
-    return "<p> Diego tonto <p>"
-
-@app.route('/empleados')
-def empleados():
-    return render_template("empleados.html")
-
-@app.route('/pacientes')
-def servicios():
-    datos = pacientesCargarTabla()
-    print(datos[1])
-    return render_template("servicios.html", cabeceras = datos[0], data = datos[1])
-
-def pacientesCargarTabla():
-    cabeceras = ("Nombre", "Empleo", "Salario")
-    data = (
-        ("Pablo", "Jefe", "4000"),
-        ("Marcuelo", "Jefe", "3000"),
-        ("Armando", "Jefe", "2000")
-    )
-    datos = [cabeceras, data]
-    return datos
-
-
+    return render_template('index.html')
 
 
 if __name__=='__main__':
