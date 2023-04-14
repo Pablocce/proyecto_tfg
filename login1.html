@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Iniciar sesión</title>
+    <style>
+        footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgb(218, 242, 243);
+        text-align: center;
+        font-size: 12px;
+        padding: 5px 0;
+      }
+
+      
+      .marca-agua {
+        opacity: 0.6;
+        font-size: 36px;
+        text-align: center;
+        margin-top: 5%;
+        color: blue;
+      }
+      body {
+        background-image: url('poner una imagen de fondo puede ser el logo o una imagen dinamica');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+      }
+
+      
+      #formulario {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 100px auto;
+        width: 300px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      }
+
+      #formulario label, #formulario input[type="submit"] {
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      #formulario input[type="text"], #formulario input[type="password"] {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 100%;
+      }
+
+      #formulario input[type="submit"] {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    
+    </style>
+  </head>
+  <body>
+    <div id="formulario">
+      <h1>Iniciar sesión</h1>
+      <form action="vincular codigo" method="post">
+        <label for="usuario">Usuario:</label>
+        <input type="text" id="usuario" name="usuario" required>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+        <input type="submit" value="Iniciar sesión">
+      </form>
+    </div>
+    <footer>
+      
+        <div class="marca-agua">Mi marca de agua</div>
+      </footer>
+  </body>
+</html>
