@@ -10,15 +10,23 @@ app.config['SECRET_KEY'] = '898572ebbc3be7c4bbc0222472fbd928'
 #decoramos para indicar que se liga a la ruta raiz
 def index():
     #render_template sirve para renderizar los hmtl
-    return render_template('index.html')
+    return render_template('base.html')
+
+
+
+@app.route('/empleados')
+def empleados():
+    return render_template('empleados.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])  #methods permite a flask ejecutar estos metodos desde las clases pertinentes
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        flash(f'Account created for {form.username.date}!', 'success')
-        return redirect(url_for('index'))
+        flash(f'Account created for {form.username.data}!', 'success')
+        return redirect(url_for('register'))
+    else:
+        print(form.errors)
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/login')
