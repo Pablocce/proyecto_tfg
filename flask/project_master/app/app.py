@@ -1,7 +1,17 @@
 from flask import Flask, render_template, flash, redirect, url_for
 from forms import RegistrationForm, LoginForm
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+
+#ruta relativa para fichero -- las /// indican ruta relativa
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+
+#instanciamos alchemy
+db = SQLAlchemy(app)
+
+#importamos los módelos
+from models import User, Employee
 
 #secret key for our aplication
 app.config['SECRET_KEY'] = '898572ebbc3be7c4bbc0222472fbd928'
