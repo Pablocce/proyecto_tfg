@@ -64,16 +64,16 @@
                     <!-- Parte derecha de la barra de navegación-->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                        <a class="nav-link active" aria-current="page" href="/empleados">Empleados</a>
-                                <a class="nav-item nav-link" href="#">Pedidos</a>
-                                <a class="nav-item nav-link" href="#">Citas</a>
-                                <a class="nav-item nav-link" href="#">Pacientes</a>
-                                <a class="nav-item nav-link" href="/account">Tu cuenta</a>
-                                <a class="nav-item nav-link" href="/register">Registro empleados</a>
-                                <a class="nav-item nav-link" href="/logout">Salir</a>
+                            <a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
+                            <a class="nav-item nav-link" href="/pedidos">Pedidos</a>
+                            <a class="nav-item nav-link" href="/citas">Citas</a>
+                            <a class="nav-item nav-link" href="/pacientes">Pacientes</a>
+                            <a class="nav-item nav-link" href="/account">Tu cuenta</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                            <a class="nav-item nav-link" href="/logout">Salir</a>
                         {% else %}
-                                <a class="nav-item nav-link" href="/login">Acceso</a>
-                                <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                            <a class="nav-item nav-link" href="/login">Acceso</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
                         {% endif %}
                     </div>
                 </ul>
