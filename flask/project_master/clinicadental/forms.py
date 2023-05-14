@@ -67,6 +67,11 @@ class NewEmployeeForm(FlaskForm):
     emp_name = StringField('Nombre empleado', validators=[DataRequired(), Length(max=20)])
     emp_surname = StringField('Apellidos empleado', validators=[DataRequired(), Length(max=35)])
     emp_salary = IntegerField('Salario empleado', validators=[DataRequired()])
-    emp_user_id = IntegerField('ID usuario')
+    emp_user_id = IntegerField('ID usuario', validators=[])
 
     submit = SubmitField('Añadir empleado')
+
+class DeleteEmployee(FlaskForm):
+    emp_id = IntegerField('ID empleado', validators=[DataRequired()])
+    
+    delete = SubmitField('Borrar empleado')

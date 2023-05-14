@@ -1,16 +1,13 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
-from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm
+from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm, DeleteEmployee
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
 
 import psycopg2
 
-
-
 app = Flask(__name__)
 login_manager = LoginManager(app)
-
 
 def conector():
     conn=None
@@ -26,7 +23,6 @@ def conector():
         print(error)
     return conn
 
-
 #secret key for our aplication
 app.config['SECRET_KEY'] = '898572ebbc3be7c4bbc0222472fbd928'
 
@@ -41,18 +37,15 @@ def flash_errors(form):
         for error in errors:
             flash(f"Error en el campo {getattr(form, field).label.text}: {error}", "error")
 
-
 @app.route('/gestion', methods=['GET','POST'])
 def gestion():
     formEmployee = NewEmployeeForm() 
     if current_user.is_authenticated:
-
         if current_user.is_admin:
             conn = conector()
             cur = conn.cursor()
             cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary, emp_user_id FROM employees")
             employees_data = cur.fetchall()
-            print(employees_data)
             cur.close()
             conn.close()
             if request.form:
@@ -67,7 +60,6 @@ def gestion():
                 cur.close()
                 conn.commit()
                 conn.close()
-
                 conn = conector()
                 cur = conn.cursor()
                 cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary, emp_user_id FROM employees")
@@ -84,9 +76,16 @@ def gestion():
             return "<p>No puedes ver esto por falta de permisos</p>"
     else:
         return render_template('not_authenticated.html')
-
-
-
+    
+@app.route('/deleteemp/<id>', methods=['GET','POST'])
+def delete_emp(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("Delete from employees where id_employee = %s",id)
+    cur.close()
+    conn.commit()
+    conn.close()
+    return redirect(url_for('gestion'))
 
 @app.route('/register', methods=['GET', 'POST'])  #methods permite a flask ejecutar estos metodos desde las clases pertinentes
 def register():
@@ -138,12 +137,9 @@ def load_user(user_id):
     user_data = cur.fetchone()
     cur.close()
     conn.close()
-
     if not user_data:
         return None
-
     id_user, username, user_password, is_admin = user_data
-
     user = UserMixin()
     user.id = id_user
     user.username = username
@@ -151,8 +147,6 @@ def load_user(user_id):
     user.is_admin = is_admin
 
     return user
-
-
 
 @app.route("/logout")
 def logout():
@@ -179,8 +173,5 @@ def account():
         conn.close()
     return render_template('account.html', title='Account', form=form)
 
-
-
 if __name__=='__main__':
     app.run(host='0.0.0.0')
-
