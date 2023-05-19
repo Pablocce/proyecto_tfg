@@ -1,3 +1,6 @@
+#Para testear -----------------------------------------------------------------------------------------------------
+
+
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from forms1 import PedidosForm
@@ -32,12 +35,29 @@ def index():
     form = PedidosForm()
 
     cur = conn.cursor()
-    
-    cur.execute("SELECT id_pedido, precioTotalUnidad,id_empresa from pedidos")
+
+
+    #select para mostrar los pedidos
+    cur.execute("SELECT id_pedido,precioTotalUnidad,nombre_empresa,username from pedidos p join supplier produc on p.id_empresa=produc.id_empresa join Users on p.id_usuario=Users.id_user")
     user_data = cur.fetchall()
+    
+    print(user_data)
+
+
+    # select para empresa
+    cur.execute("SELECT * from supplier")
+    empresa=cur.fetchall()
+    print(empresa)
+
+    # select para productos
+    cur.execute("SELECT * from product")
+    productos=cur.fetchall()
+    print(productos)
+
+
+    
     cur.close()
     conn.close()
-    print(user_data)
     return render_template("index.html",pedidos=user_data)
 
 if __name__=='__main__':

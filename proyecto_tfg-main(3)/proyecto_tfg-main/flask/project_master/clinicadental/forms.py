@@ -72,8 +72,8 @@ class NewEmployeeForm(FlaskForm):
     submit = SubmitField('Añadir empleado')
 
 class NewPedidoForm(FlaskForm):
-    names_pedido= StringField('Nombre del pedido:',validators=[DataRequired(),Length(max=50)])
-    precio= IntegerField('Precio del pedido:',validators=[DataRequired(),Length(max=10)])
-    empresa= StringField('Nombre de la empresa :',validators=[DataRequired(),Length(max=50)])
-    cantidad_pedido= IntegerField('Nombre del pedido:',validators=[DataRequired(),Length(max=50)])
-
+    username = StringField('Nombre usuario', validators=[DataRequired(), Length(min=5, max=20)])
+    password = PasswordField('Contraseña', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirmar contraseña', validators=[DataRequired(), EqualTo('password')])
+    codigo_admin = PasswordField('Código administrador', validators=[DataRequired()])
+    is_admin = BooleanField('Marcar como administrador?')

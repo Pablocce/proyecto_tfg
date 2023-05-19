@@ -1,3 +1,5 @@
+#Para testear -----------------------------------------------------------------------------------------------------
+
 from flask_wtf import FlaskForm
 #tipo de dato y meter dominios dentro
 from wtforms import StringField , PasswordField, SubmitField, BooleanField, IntegerField

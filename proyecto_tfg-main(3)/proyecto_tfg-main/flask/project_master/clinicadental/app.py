@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
-from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm
+from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm,NewPedidoForm
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
@@ -100,7 +100,7 @@ def register():
         username = form.username.data
         password = form.password.data
         is_admin = form.is_admin.data
-        cur.execute("INSERT INTO public.users (username, user_password, is_admin) VALUES(%s, %s,%s)",(username,password, is_admin))
+        cur.execute("INSERT INTO public.users (username, user_password, image_profile) VALUES(%s, %s,%s)",(username,password, is_admin))
         flash(f'Cuenta creada para: {form.username.data}!', 'success')
         cur.close()
         conn.commit()
@@ -135,7 +135,7 @@ def login():
 def load_user(user_id):
     conn = conector()
     cur = conn.cursor()
-    cur.execute("SELECT id_user, username, user_password, is_admin FROM users WHERE id_user = %s", (user_id,))
+    cur.execute("SELECT id_user, username, user_password, image_profile  FROM users WHERE id_user = %s", (user_id,))
     user_data = cur.fetchone()
     cur.close()
     conn.close()
@@ -180,6 +180,36 @@ def account():
         conn.close()
     return render_template('account.html', title='Account', form=form)
 
+@app.route("/pedidos")
+def pedidos(): 
+    conn = conector()
+    form = NewPedidoForm()
+
+    cur = conn.cursor()
+
+
+    #select para mostrar los pedidos
+    cur.execute("SELECT id_pedido,precioTotalUnidad,nombre_empresa,username from pedidos p join supplier produc on p.id_empresa=produc.id_empresa join Users on p.id_usuario=Users.id_user")
+    user_data = cur.fetchall()
+    
+    print(user_data)
+
+
+    # select para empresa
+    cur.execute("SELECT * from supplier")
+    empresa=cur.fetchall()
+    print(empresa)
+
+    # select para productos
+    cur.execute("SELECT * from product")
+    productos=cur.fetchall()
+    print(productos)
+
+
+    
+    cur.close()
+    conn.close()
+    return render_template("pedidos.html",pedidos=user_data)
 
 
 if __name__=='__main__':

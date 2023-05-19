@@ -1,13 +1,12 @@
 <!-- #Para testear ----------------------------------------------------------------------------------------------------- -->
 
 <!DOCTYPE html>
-
 <html>
 	<head>
 		<meta charset="UTF-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Clinica dental - Pedidos</title>
+		<title>Clinica dental - empleados</title>
 		<!-- Agregar Bootstrap CSS -->
 		<style>
 			html,
@@ -172,50 +171,62 @@
 				<a href="#" onclick="mostrarContenido('horario')" id="horario-btn"><i class="fa fa-calendar-check"></i></a>
 			</div>
 		</div>
-  <div class="container">
-      <div class="row">
-        <div class="col md-12">
-         <div class="jumbotron">
-            <h1>Pedidos 
-              
-            <button type="button" class="btn btn-sucess float-right" data-toggle="modal" data-target="#mymodal"></button></h1>
-            <h2 id="gestion-titulo"> {{ pedidos[0][3] }}
-              <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#mymodal">
-                  Añadir nuevo empleado
-              </button>
-          </h2>
-            <hr class="my-4">
-            
-              <table class="table table-hover table-dark">
+	<div class="container">
+		<h1>Insertar datos</h1>
+		<form action="procesar.php" method="post">
+			<!-- Tabla Users -->
+			<h2>Tabla Users</h2>
+			<div class="form-group">
+				<label for="username">Nombre de usuario:</label>
+				<input type="text" class="form-control" id="username" name="username" required>
+			</div>
+			<div class="form-group">
+				<label for="user_password">Contraseña:</label>
+				<input type="password" class="form-control" id="user_password" name="user_password" required>
+			</div>
+			<div class="form-group">
+				<label for="image_profile">Imagen de perfil:</label>
+				<input type="text" class="form-control" id="image_profile" name="image_profile">
+			</div>
 
-                <tr>
-                  <th>id</th>
-                 
-                  <th>Precio unidad</th>
-                  <th>empresa</th>
-                </tr>
+			<!-- Tabla supplier -->
+			<h2>Tabla supplier</h2>
+			<div class="form-group">
+				<label for="nombre_empresa">Nombre de la empresa:</label>
+				<input type="text" class="form-control" id="nombre_empresa" name="nombre_empresa" required>
+			</div>
 
-                {% for row in pedidos  %}
-                
-                <tr>
-                  <td>{{row[0]}}</td>
-                  <th>{{row[1]}}</th>
-                  <td>{{row[2]}}</td>
-                </tr>
-                
-                {% endfor %}
+			<!-- Tabla product -->
+			<h2>Tabla product</h2>
+			<div class="form-group">
+				<label for="precUnidad">Precio por unidad:</label>
+				<input type="number" class="form-control" id="precUnidad" name="precUnidad" required>
+			</div>
+			<div class="form-group">
+				<label for="nombreProduc">Nombre del producto:</label>
+				<input type="text" class="form-control" id="nombreProduc" name="nombreProduc" required>
+			</div>
+			<div class="form-group">
+				<label for="id_empresa">ID de la empresa:</label>
+				<input type="number" class="form-control" id="id_empresa" name="id_empresa" required>
+			</div>
 
-
-                
-
-              </table>
-
-          </div>
-
-          </div>
-        </div>
-      </div>
-  </div>
-</body>
-
-</html>
+			<!-- Tabla pedidos -->
+			<h2>Tabla pedidos</h2>
+			<div class="form-group">
+				<label for="id_usuario">ID del usuario:</label>
+				<input type="number" class="form-control" id="id_usuario" name="id_usuario" required>
+			</div>
+			<div class="form-group">
+				<label for="id_producto">ID del producto:</label>
+				<input type="number" class="form-control" id="id_producto" name="id_producto" required>
+			</div>
+			<div class="form-group">
+				<label for="cantidad">Cantidad:</label>
+				<input type="number" class="form-control" id="cantidad" name="cantidad" required>
+			</div>
+			</form>
+		</div>
+	</body>
+	</html>
+			
