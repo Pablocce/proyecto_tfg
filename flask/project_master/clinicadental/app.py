@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
-from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm, DeleteEmployee
+from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
@@ -39,12 +39,13 @@ def flash_errors(form):
 
 @app.route('/gestion', methods=['GET','POST'])
 def gestion():
+    horarios = obtain_schedules()
     formEmployee = NewEmployeeForm() 
     if current_user.is_authenticated:
         if current_user.is_admin:
             conn = conector()
             cur = conn.cursor()
-            cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary, emp_user_id FROM employees")
+            cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary, emp_user_id FROM employees order by id_employee")
             employees_data = cur.fetchall()
             cur.close()
             conn.close()
@@ -62,34 +63,112 @@ def gestion():
                 conn.close()
                 conn = conector()
                 cur = conn.cursor()
-                cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary, emp_user_id FROM employees")
+                cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary FROM employees")
                 employees_data = cur.fetchall()
                 cur.close()
                 conn.close()
                 # Procesar el formulario y crear un nuevo empleado
                 # ...
-                return render_template('gestion.html', formEmployee=formEmployee, employees_data = employees_data)
+                return render_template('gestion.html', formEmployee=formEmployee, employees_data = employees_data, horarios = horarios)
             else:
                 flash_errors(formEmployee)
-                return render_template('gestion.html', title='Empleados', formEmployee=formEmployee, employees_data = employees_data)
+                return render_template('gestion.html', title='Empleados', formEmployee=formEmployee, employees_data = employees_data, horarios = horarios)
         else:
             return "<p>No puedes ver esto por falta de permisos</p>"
     else:
         return render_template('not_authenticated.html')
     
+def obtain_schedules():
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("SELECT emp_schedule.schedule_id, emp_schedule.day, employees.emp_name, emp_schedule.start_time, emp_schedule.end_time FROM emp_schedule JOIN employees ON emp_schedule.id_employee = employees.id_employee ORDER BY CASE emp_schedule.day WHEN 'lunes' THEN 1 WHEN 'martes' THEN 2 WHEN 'miércoles' THEN 3 WHEN 'jueves' THEN 4 WHEN 'viernes' THEN 5 ELSE 6 END, TO_TIMESTAMP(emp_schedule.start_time, 'HH24:MI')")
+    data = cur.fetchall()
+    cur.close()
+    conn.close()
+    return data
+
+def search_fields_employee(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("SELECT emp_name, emp_surname, emp_salary, emp_user_id FROM employees WHERE id_employee = %s", (id,))
+    employee_data = cur.fetchone()
+    cur.close()
+    conn.close()
+    return list(employee_data)
+
+@app.route('/modifyemp/<id>', methods=['GET', 'POST'])
+def modify_emp(id):
+    formEmployee = EditEmployeeForm()
+    datos_empleado = search_fields_employee(id)
+    if current_user.is_authenticated:
+        if current_user.is_admin:
+            if request.form:
+                conn = conector()
+                cur = conn.cursor()
+                emp_name = formEmployee.emp_name.data
+                emp_surname = formEmployee.emp_surname.data
+                emp_salary = formEmployee.emp_salary.data
+                cur.execute("UPDATE employees set emp_name = %s, emp_surname = %s, emp_salary = %s where id_employee = %s",(emp_name, emp_surname, emp_salary, id))
+                cur.close()
+                conn.commit()
+                conn.close()
+                return redirect(url_for('gestion'))
+        else:
+            return "<p>No puedes ver esto por falta de permisos</p>"
+    else:
+        return render_template('not_authenticated.html')
+    return render_template('modifyemp.html', id = id, datos_empleado = datos_empleado, formEmployee = formEmployee)
+
 @app.route('/deleteemp/<id>', methods=['GET','POST'])
 def delete_emp(id):
     conn = conector()
     cur = conn.cursor()
-    cur.execute("Delete from employees where id_employee = %s",id)
+    cur.execute("DELETE FROM employees WHERE id_employee = %s", (id,))
     cur.close()
     conn.commit()
     conn.close()
     return redirect(url_for('gestion'))
 
+@app.route('/schedule/<id>', methods=['GET','POST'])
+def schedule_emp(id):
+    formEmployee = NewEmployeeSchedule()
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("SELECT emp_name from employees where id_employee = %s",(id,))
+    employee_name = cur.fetchmany()
+    employee_name = employee_name[0]
+    cur.execute("SELECT schedule_id, id_employee, day, start_time, end_time FROM emp_schedule WHERE id_employee = %s ORDER BY CASE day WHEN 'lunes' THEN 1 WHEN 'martes' THEN 2 WHEN 'miércoles' THEN 3 WHEN 'jueves' THEN 4 WHEN 'viernes' THEN 5 ELSE 6 END", (id,))
+    employee_schedule = cur.fetchall()  
+    cur.close()
+    conn.close()
+    if request.form:
+        conn = conector()
+        cur = conn.cursor()
+        day = formEmployee.schedule_day.data 
+        entry = formEmployee.schedule_entry.data
+        exit = formEmployee.schedule_exit.data
+        cur.execute("INSERT INTO public.emp_schedule (id_employee, day, start_time, end_time) VALUES(%s,%s,%s,%s)",(id,day,entry,exit))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(f'/schedule/{id}') 
+    return render_template('schedule.html',formEmployee = formEmployee, employee_schedule = employee_schedule, employee_name = employee_name)
+
+@app.route('/schedule_delete/<id>')
+def schedule_delete(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("select id_employee from emp_schedule where schedule_id = %s",(id,))
+    id_user = cur.fetchone
+    cur.execute("delete from emp_schedule where schedule_id = %s",(id,))
+    cur.close() 
+    conn.commit()
+    conn.close()
+    return redirect('/gestion') 
+
 @app.route('/register', methods=['GET', 'POST'])  #methods permite a flask ejecutar estos metodos desde las clases pertinentes
 def register():
-    if current_user.is_authenticated:
+    if not current_user.is_authenticated:
         return render_template('not_authenticated.html')
     conn = conector()
     form = RegistrationForm()
@@ -172,6 +251,30 @@ def account():
         conn.commit()
         conn.close()
     return render_template('account.html', title='Account', form=form)
+
+@app.route("/pedidos")
+def warehouse():
+    conn = conector()
+    cur = conn.cursor()
+
+    #select para mostrar los pedidos
+    cur.execute("SELECT id_pedido,precioTotalUnidad,nombre_empresa,username from pedidos p join supplier produc on p.id_empresa=produc.id_empresa join Users on p.id_usuario=Users.id_user")
+    user_data = cur.fetchall()
+    print(user_data)
+
+    # select para empresa
+    cur.execute("SELECT * from supplier")
+    empresa=cur.fetchall()
+    print(empresa)
+
+    # select para productos
+    cur.execute("SELECT * from product")
+    productos=cur.fetchall()
+    print(productos)
+
+    cur.close()
+    conn.close()
+    return render_template("warehouse.html",pedidos=user_data)
 
 if __name__=='__main__':
     app.run(host='0.0.0.0')

@@ -2,9 +2,10 @@ from flask_wtf import FlaskForm
 #tipo de dato y meter dominios dentro
 from wtforms import StringField , PasswordField, SubmitField, BooleanField, IntegerField
 #importamos validadores
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, AnyOf, Regexp
 import email_validator
 import psycopg2
+
 
 def conector():
     conn=None
@@ -59,7 +60,7 @@ class LoginForm(FlaskForm):
 class ChangePasswordForm(FlaskForm): 
     old_password = PasswordField('Contraseña antigua', validators=[DataRequired()])
     new_password = PasswordField('Nueva contraseña', validators=[DataRequired()])
-    confirm_new_password = PasswordField('Reppite la nueva contraseña', validators=[DataRequired(),EqualTo('new_password')])
+    confirm_new_password = PasswordField('Repite la nueva contraseña', validators=[DataRequired(),EqualTo('new_password')])
 
     submit = SubmitField('Cambiar contraseña')
 
@@ -71,7 +72,29 @@ class NewEmployeeForm(FlaskForm):
 
     submit = SubmitField('Añadir empleado')
 
+class EditEmployeeForm(FlaskForm):
+    emp_name = StringField('Nombre empleado', validators=[DataRequired(), Length(max=20)])
+    emp_surname = StringField('Apellidos empleado', validators=[DataRequired(), Length(max=35)])
+    emp_salary = IntegerField('Salario empleado', validators=[DataRequired()])
+    emp_user_id = IntegerField('ID usuario', validators=[])
+
+    submit = SubmitField('Añadir empleado')
+
 class DeleteEmployee(FlaskForm):
     emp_id = IntegerField('ID empleado', validators=[DataRequired()])
     
     delete = SubmitField('Borrar empleado')
+
+class NewEmployeeSchedule(FlaskForm):
+    schedule_day = StringField('Día de la semana', validators=[DataRequired(),AnyOf(['lunes', 'martes', 'miércoles', 'jueves', 'viernes'],
+                                                message='El día debe ser lunes, martes, miércoles, jueves o viernes.')])
+    
+    schedule_entry = StringField('Hora de entrada', validators=[DataRequired()])
+    schedule_exit = StringField('Hora de salida', validators=[DataRequired()])
+
+    submit = SubmitField('Añadir horario')
+
+    
+
+
+#form warehouse

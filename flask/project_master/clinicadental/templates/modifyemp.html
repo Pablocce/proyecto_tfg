@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinica dental</title>
+    <!-- Agregar Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="contenedor center">
+        <br>
+        <legend class="border-bottom">
+            <div class="titulo">Registro empleados</div>
+        </legend>
+        <br>
+        <br>
+        <div class="content-section center">
+            <form method="post">
+                <!-- Aquí va el formulario -->
+                <fieldset class="form-group">
+                    <div class="form-group textbox-container">
+                        {{ formEmployee.emp_name.label(class="form-control-label") }}
+
+                        {% if formEmployee.emp_name.errors %}
+                        {{ formEmployee.emp_name(class="form-control form-control-lg is-invalid", value=datos_empleado[0]) }}
+                        <div class="invalid-feedback textbox-container">
+                            {% for error in formEmployee.emp_name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ formEmployee.emp_name(class="form-control form-control-lg", value=datos_empleado[0]) }}
+                        {% endif %}
+
+                    </div>
+                    <div class="form-group textbox-container">
+                        {{ formEmployee.emp_surname.label(class="form-control-label") }}
+
+                        {% if formEmployee.emp_surname.errors %}
+                        {{ formEmployee.emp_surname(class="form-control form-control-lg is-invalid", value=datos_empleado[1]) }}
+                        <div class="invalid-feedback textbox-container">
+                            {% for error in formEmployee.emp_surname.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ formEmployee.emp_surname(class="form-control form-control-lg", value=datos_empleado[1]) }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group textbox-container">
+                        {{ formEmployee.emp_salary.label(class="form-control-label") }}
+
+                        {% if formEmployee.emp_salary.errors %}
+                        {{ formEmployee.emp_salary(class="form-control form-control-lg is-invalid", value=datos_empleado[2]) }}
+                        <div class="invalid-feedback textbox-container">
+                            {% for error in formEmployee.emp_salary.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ formEmployee.emp_salary(class="form-control form-control-lg" , value=datos_empleado[2])}}
+                        {% endif %}
+                    </div>
+                    <div class="form-group textbox-container">
+                        {{ formEmployee.emp_user_id.label(class="form-control-label") }}
+
+                        {% if formEmployee.emp_user_id.errors %}
+                        {{ formEmployee.emp_user_id(class="form-control form-control-lg is-invalid", value=datos_empleado[3]) }}
+                        <div class="invalid-feedback textbox-container">
+                            {% for error in formEmployee.emp_user_id.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ formEmployee.emp_user_id(class="form-control form-control-lg", value=datos_empleado[3]) }}
+
+                        {% endif %}
+                    </div>
+                </fieldset>
+                <br>
+                <div class="form-group">
+                    <button class="btn btn-success btn-xs" type="submit">Guardar cambios</button>
+                    <button class="btn btn-danger btn-xs">Volver al menú</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {{aux}}
+</body>
+
+</html>
