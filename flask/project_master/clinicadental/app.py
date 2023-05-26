@@ -258,19 +258,16 @@ def warehouse():
     cur = conn.cursor()
 
     #select para mostrar los pedidos
-    cur.execute("SELECT id_pedido,precioTotalUnidad,nombre_empresa,username from pedidos p join supplier produc on p.id_empresa=produc.id_empresa join Users on p.id_usuario=Users.id_user")
+    cur.execute("SELECT id_pedido,nombreProduc,precUnidad,cantidad,precioTotalUnidad,fecha,nombre_empresa from pedidos p join supplier su on p.id_empresa=su.id_empresa join product produ on p.id_producto=produ.id_producto")    
     user_data = cur.fetchall()
-    print(user_data)
 
-    # select para empresa
+    # select para empresa   
     cur.execute("SELECT * from supplier")
     empresa=cur.fetchall()
-    print(empresa)
 
     # select para productos
     cur.execute("SELECT * from product")
     productos=cur.fetchall()
-    print(productos)
 
     cur.close()
     conn.close()
