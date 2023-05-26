@@ -40,7 +40,34 @@ create table pedidos(
 		references product(id_producto)
 );
 
+CREATE TABLE pacientes (
+    nombre     varchar(15),
+    apellido1  varchar(20),
+    apellido2  varchar(20),
+    DNI        varchar(9) primary key,
+    ID_user    INTEGER,
+    constraint fk_users
+    	foreign key (id_user)
+    	references Users(id_user)
+);
 
+create table cita (
+	id_cita		integer(6),
+	id_paciente	integer(10),
+	id_user		integer(10),
+	fecha		date,
+	descripcion	varchar(255),
+	constraint fk_usuario
+    	foreign key (id_user)
+    	references Users(id_user),
+    constraint fk_paciente
+    	foreign key (id_paciente)
+    	references pacientes(DNI)
+);
+
+
+
+select * from pacientes;
 update pedidos set cantidad=10 where id_pedido=3;
 
 select *from pedidos;
@@ -50,16 +77,18 @@ INSERT INTO Users (id_user, username, user_password, image_profile) VALUES
 (1, 'JuanPerez', 'contraseña123','Admin'),
 (2, 'MariaGarcia', 'clave456', 'Dentista'),
 (3, 'PedroLopez', 'pass789', 'Recepcionista');
-
+r
 INSERT INTO supplier (id_empresa, nombre_empresa) VALUES
 (1, 'Dentistas Martínez'),
 (2, 'Clínica Dental García'),
 (3, 'Consultorio Dental López');
 
-INSERT INTO product (id_producto, 	, nombreProduc, id_empresa) VALUES
+INSERT INTO product (id_producto, precUnidad, nombreProduc, id_empresa) VALUES
 (1, 50.00, 'Blanqueamiento Dental', 1),
 (2, 150.00, 'Limpieza Dental Profunda', 2),
 (3, 80.00, 'Extracción de Muela', 3);
+
+select * from product;
 
 
 INSERT INTO pedidos (id_pedido, id_usuario, id_producto, cantidad, fecha, precioTotalUnidad, id_empresa) VALUES
