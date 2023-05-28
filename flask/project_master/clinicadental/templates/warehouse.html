@@ -20,11 +20,8 @@
 		}
 
 		.contenedor {
-			max-width: 1800px;
-			margin-left: 20px;
-			margin-right: 10px;
-			margin-left: auto;
-			margin-right: auto;
+			width: 100%;
+			min-height: 100%;
 		}
 
 		table {
@@ -117,29 +114,58 @@
 			float: right;
 			width: 95%;
 		}
+
 		#abajo {
 			border-bottom: #333;
 
 		}
-		#nombreEmpresayfecha{
+
+		#nombreEmpresayfecha {
 			font-size: small;
 
 		}
-		#id_producto{
+
+		#id_producto {
 			font-size: 18;
 			text-align: center;
 			width: auto;
 			border-bottom: #333;
 
 		}
-		#nombreProduc{
+
+		#nombreProduc {
 			font-size: large;
 		}
-		#arriba{
+
+		#arriba {
 			border-top: #333;
 			border-bottom: #9be6eb;
 		}
 
+		#contenedor {
+			display: flex;
+		}
+
+		#icon-bar {
+			width: 75px;
+			background-color: #F8F9FA;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		#contenido {
+			flex-grow: 1;
+			padding-left: 20px;
+		}
+
+		.expandir {
+			flex: 1;
+		}
+
+		#pedidos {
+			height: 100%;
+		}
 	</style>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -186,139 +212,147 @@
 		integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
 		crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	
-    
-    <div id="contenedor">
-		<div class="icon-bar" id="left">
-			<a href="#" onclick="mostrarContenido('pedidos')" id="pedidos-btn"><i class="fa fa-briefcase"></i></a>
-			<a href="#" onclick="mostrarContenido('ajustes')" id="ajustes-btn"><i class="fa fa-gear"></i></a>
-			<a href="#" onclick="mostrarContenido('productos')" id="productos-btn"><i
-					class="fa fa-money-bill-trend-up"></i></a>
-			<a href="#" onclick="mostrarContenido('empresas')" id="empresas-btn"><i class="fa fa-calendar-check"></i></a>
-		</div>
+	<div class="icon-bar" id="left">
+		<a href="#" onclick="mostrarContenido('pedidos')" id="pedidos-btn"><i class="fa fa-briefcase"></i></a>
+		<a href="#" onclick="mostrarContenido('ajustes')" id="ajustes-btn"><i class="fa fa-gear"></i></a>
+		<a href="#" onclick="mostrarContenido('productos')" id="productos-btn"><i
+				class="fa fa-money-bill-trend-up"></i></a>
+		<a href="#" onclick="mostrarContenido('empresas')" id="empresas-btn"><i class="fa fa-calendar-check"></i></a>
 	</div>
-    <div id="pedidos">
-        <div class="container">
-		<div class="row">
-			<div class="col md-12">
-				<div class="jumbotron">
-					<h1>Pedidos
-
-						<button type="button" class="btn btn-sucess float-right" data-toggle="modal"
-							data-target="#mymodal"></button>
-					</h1>
-					<h3 id="gestion-titulo">
-                        {{ current_user.username}}
-						<button type="button" class="btn btn-secondary btn-xs" data-toggle="modal"
-							data-target="#mymodal">
-							Realizar pedido
-						</button>
-					</h3>
-					<hr class="my-4">
-
-					<table class="table table-hover">
-
-
-						{% for row in pedidos %}
-
-						<tr id="arriba">
-							<td id="id_producto" rowspan="2">P{{row[0]}}</td>
-							<td id="nombreProduc"> {{row[1]}}</td>
-							<td id="precioUnidad"> {{row[2]}}€</td>
-							<td id="Cantidad"> {{row[3]}} unidades</td>
-							<td id="precioTotalUnidad"> {{row[2]*row[3]}}€</td>
-
-						</tr>
-						<tr id="abajo">
-							<td id="nombreEmpresayfecha">Company {{row[6]}}	     {{row[5]}}</td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-						</tr>
-
-						{% endfor %}
-
-
-
-
-					</table>
-
-				</div>
-
+	<div id="contenedor">
+		<div id="pedidos" class="expandir">
+			<div class="jumbotron">
+				<h1>Pedidos
+					<button type="button" class="btn btn-sucess float-right" data-toggle="modal"
+						data-target="#mymodal"></button>
+				</h1>
+				<h3 id="gestion-titulo">
+					{{ current_user.username}}
+					<button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#mymodal">
+						Realizar pedido
+					</button>
+				</h3>
+				<hr class="my-4">
+				<table class="table table-hover">
+					{% for row in pedidos %}
+					<tr id="arriba">
+						<td id="id_producto" rowspan="2">P{{row[0]}}</td>
+						<td id="nombreProduc"> {{row[1]}}</td>
+						<td id="precioUnidad"> {{row[2]}}€</td>
+						<td id="Cantidad"> {{row[3]}} unidades</td>
+						<td id="precioTotalUnidad"> {{row[2]*row[3]}}€</td>
+					</tr>
+					<tr id="abajo">
+						<td id="nombreEmpresayfecha">Company {{row[6]}} {{row[5]}}</td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					{% endfor %}
+				</table>
 			</div>
 		</div>
-	    </div>
-    </div>
-
-    
-    <div id="ajustes" style="display:none;">
-        esto son ajustes
-    </div>
-    <div id="productos" style="display:none;">
-        productos
-    </div>
-    <div id="empresas" style="display:none;">
-        esto son empresas
-    </div>
-	
+		<div id="ajustes" class="expandir" style="display:none;">
+			esto son ajustes
+		</div>
+		<div id="productos" class="expandir" style="display:none;">
+			<table class="table ">
+				<h3>Productos</h3>
+				<tr>
+					<th>Producto</th>
+					<th>Precio</th>
+					<th>Stock</th>
+					<th>Proveedor</th>
+				</tr>
+				{% for row in productos %}
+				<tr>
+					<td>{{row[2]}}</td>
+					<td>{{row[1]}}$</td>
+					<td>{{row[4]}}</td>
+					<td>{{row[5]}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		<div id="empresas" class="expandir" style="display:none;">
+			<h1>
+				Tabla empresas
+			</h1>
+			<table class="table table-hover">
+				<tr>
+					<th>ID</th>
+					<th>Nombre de la empresa</th>
+				</tr>
+				{% for row in empresas_data %}
+				<tr>
+					<td>{{row[0]}}</td>
+					<td>{{row[1]}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
 	</div>
 
-	
-    <script>
-        function mostrarContenido(opcionSeleccionada) {
-            var pedidosBtn = document.getElementById('pedidos-btn');
-            var ajustesBtn = document.getElementById('ajustes-btn');
-            var productosBtn = document.getElementById('productos-btn');
-            var empresasBtn = document.getElementById('empresas-btn');
-
-            if (opcionSeleccionada === 'pedidos') {
-                document.getElementById('pedidos').style.display = "block";
-                document.getElementById('ajustes').style.display = "none";
-                document.getElementById('productos').style.display = "none";
-                document.getElementById('empresas').style.display = "none";
-                pedidosBtn.classList.add("active");
-                ajustesBtn.classList.remove("active");
-                empresasBtn.classList.remove("active");
-                productosBtn.classList.remove("active");
-            } else if (opcionSeleccionada === 'ajustes') {
-                document.getElementById('pedidos').style.display = "none";
-                document.getElementById('ajustes').style.display = "block";
-                document.getElementById('productos').style.display = "none";
-                document.getElementById('empresas').style.display = "none";
-                pedidosBtn.classList.remove("active");
-                ajustesBtn.classList.add("active");
-                empresasBtn.classList.remove("active");
-                productosBtn.classList.remove("active");
-            } else if (opcionSeleccionada === 'productos') {
-                document.getElementById('pedidos').style.display = "none";
-                document.getElementById('ajustes').style.display = "none";
-                document.getElementById('productos').style.display = "block";
-                document.getElementById('empresas').style.display = "none";
-                pedidosBtn.classList.remove("active");
-                ajustesBtn.classList.remove("active");
-                empresasBtn.classList.remove("active");
-                productosBtn.classList.add("active");
-            } else if (opcionSeleccionada === 'empresas') {
-                document.getElementById('pedidos').style.display = "none";
-                document.getElementById('ajustes').style.display = "none";
-                document.getElementById('productos').style.display = "none";
-                document.getElementById('empresas').style.display = "block";
-                pedidosBtn.classList.remove("active");
-                ajustesBtn.classList.remove("active");
-                productosBtn.classList.remove("active");
-                empresasBtn.classList.add("active");
-
-            }
-        }
 
 
-    </script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-Gy4Q+YAFv5BXzynKC8PfdZKbQ5pr1vLXLdWt8Xj05ePpjCilcbvID+TGnyx8InMh"
-    crossorigin="anonymous"></script>
+
+	<script>
+		function mostrarContenido(opcionSeleccionada) {
+			var pedidosBtn = document.getElementById('pedidos-btn');
+			var ajustesBtn = document.getElementById('ajustes-btn');
+			var productosBtn = document.getElementById('productos-btn');
+			var empresasBtn = document.getElementById('empresas-btn');
+
+			if (opcionSeleccionada === 'pedidos') {
+				document.getElementById('pedidos').style.display = "block";
+				document.getElementById('ajustes').style.display = "none";
+				document.getElementById('productos').style.display = "none";
+				document.getElementById('empresas').style.display = "none";
+				pedidosBtn.classList.add("active");
+				ajustesBtn.classList.remove("active");
+				empresasBtn.classList.remove("active");
+				productosBtn.classList.remove("active");
+			} else if (opcionSeleccionada === 'ajustes') {
+				document.getElementById('pedidos').style.display = "none";
+				document.getElementById('ajustes').style.display = "block";
+				document.getElementById('productos').style.display = "none";
+				document.getElementById('empresas').style.display = "none";
+				pedidosBtn.classList.remove("active");
+				ajustesBtn.classList.add("active");
+				empresasBtn.classList.remove("active");
+				productosBtn.classList.remove("active");
+			} else if (opcionSeleccionada === 'productos') {
+				document.getElementById('pedidos').style.display = "none";
+				document.getElementById('ajustes').style.display = "none";
+				document.getElementById('productos').style.display = "block";
+				document.getElementById('empresas').style.display = "none";
+				pedidosBtn.classList.remove("active");
+				ajustesBtn.classList.remove("active");
+				empresasBtn.classList.remove("active");
+				productosBtn.classList.add("active");
+			} else if (opcionSeleccionada === 'empresas') {
+				document.getElementById('pedidos').style.display = "none";
+				document.getElementById('ajustes').style.display = "none";
+				document.getElementById('productos').style.display = "none";
+				document.getElementById('empresas').style.display = "block";
+				pedidosBtn.classList.remove("active");
+				ajustesBtn.classList.remove("active");
+				productosBtn.classList.remove("active");
+				empresasBtn.classList.add("active");
+
+			}
+		}
+
+
+	</script>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-Gy4Q+YAFv5BXzynKC8PfdZKbQ5pr1vLXLdWt8Xj05ePpjCilcbvID+TGnyx8InMh"
+		crossorigin="anonymous"></script>
 
 
 </body>

@@ -263,15 +263,15 @@ def warehouse():
 
     # select para empresa   
     cur.execute("SELECT * from supplier")
-    empresa=cur.fetchall()
+    empresas_data=cur.fetchall()
 
     # select para productos
-    cur.execute("SELECT * from product")
+    cur.execute("SELECT product.id_producto,  product.precunidad,  product.nombreproduc,  product.id_empresa , product.stock ,supplier.nombre_empresa from product join supplier on supplier.id_empresa = product.id_empresa")
     productos=cur.fetchall()
 
     cur.close()
     conn.close()
-    return render_template("warehouse.html",pedidos=user_data)
+    return render_template("warehouse.html",pedidos=user_data, productos = productos, empresas_data = empresas_data)
 
 if __name__=='__main__':
     app.run(host='0.0.0.0')
