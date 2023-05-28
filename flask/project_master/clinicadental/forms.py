@@ -98,3 +98,7 @@ class NewEmployeeSchedule(FlaskForm):
 
 
 #form warehouse
+class NewOrderWarehouse(FlaskForm):
+    product_qty = IntegerField('Cantidad del producto', validators=[DataRequired()])
+    submit = SubmitField('Crear pedido')
+    pass

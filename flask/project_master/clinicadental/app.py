@@ -1,8 +1,9 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
-from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule
+from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
+from datetime import date
 
 import psycopg2
 
@@ -49,14 +50,15 @@ def gestion():
             employees_data = cur.fetchall()
             cur.close()
             conn.close()
+            users = obtain_users()
             if request.form:
                 conn = conector()
                 cur = conn.cursor()
                 emp_name = formEmployee.emp_name.data
                 emp_surname = formEmployee.emp_surname.data
                 emp_salary = formEmployee.emp_salary.data
-                emp_user_id = 0
-                cur.execute("INSERT INTO public.employees (emp_name, emp_surname, emp_salary) values (%s,%s,%s)",(emp_name,emp_surname,emp_salary))
+                emp_user_id = request.form.get('user')
+                cur.execute("INSERT INTO public.employees (emp_name, emp_surname, emp_salary, emp_user_id) values (%s,%s,%s, %s)",(emp_name,emp_surname,emp_salary,emp_user_id))
                 #flash(f'Cuenta creada para: {formEmployee.username.data}!', 'success')
                 cur.close()
                 conn.commit()
@@ -69,15 +71,25 @@ def gestion():
                 conn.close()
                 # Procesar el formulario y crear un nuevo empleado
                 # ...
-                return render_template('gestion.html', formEmployee=formEmployee, employees_data = employees_data, horarios = horarios)
+                return render_template('gestion.html', formEmployee=formEmployee, employees_data = employees_data, horarios = horarios, users = users)
             else:
                 flash_errors(formEmployee)
-                return render_template('gestion.html', title='Empleados', formEmployee=formEmployee, employees_data = employees_data, horarios = horarios)
+                return render_template('gestion.html', title='Empleados', formEmployee=formEmployee, employees_data = employees_data, horarios = horarios, users = users)
         else:
             return "<p>No puedes ver esto por falta de permisos</p>"
     else:
         return render_template('not_authenticated.html')
     
+
+def obtain_users():
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("SELECT id_user, username FROM users")
+    users_data = cur.fetchall()
+    cur.close()
+    conn.close()
+    return users_data
+
 def obtain_schedules():
     conn = conector()
     cur = conn.cursor()
@@ -252,26 +264,54 @@ def account():
         conn.close()
     return render_template('account.html', title='Account', form=form)
 
-@app.route("/pedidos")
+@app.route("/pedidos", methods=['GET', 'POST'])
 def warehouse():
-    conn = conector()
-    cur = conn.cursor()
+    if current_user.is_authenticated:
+        formNewOrder = NewOrderWarehouse()
+        conn = conector()
+        cur = conn.cursor()
 
-    #select para mostrar los pedidos
-    cur.execute("SELECT id_pedido,nombreProduc,precUnidad,cantidad,precioTotalUnidad,fecha,nombre_empresa from pedidos p join supplier su on p.id_empresa=su.id_empresa join product produ on p.id_producto=produ.id_producto")    
-    user_data = cur.fetchall()
+        #select para mostrar los pedidos
+        cur.execute("SELECT id_pedido,nombreProduc,precUnidad,cantidad,precioTotalUnidad,fecha,nombre_empresa, (select emp_name from employees join pedidos on id_employee = employee_id) from pedidos p join supplier su on p.id_empresa=su.id_empresa join product produ on p.id_producto=produ.id_producto")    
+        user_data = cur.fetchall()
+        print(user_data)
 
-    # select para empresa   
-    cur.execute("SELECT * from supplier")
-    empresas_data=cur.fetchall()
+        # select para empresa   
+        cur.execute("SELECT * from supplier")
+        empresas_data=cur.fetchall()
 
-    # select para productos
-    cur.execute("SELECT product.id_producto,  product.precunidad,  product.nombreproduc,  product.id_empresa , product.stock ,supplier.nombre_empresa from product join supplier on supplier.id_empresa = product.id_empresa")
-    productos=cur.fetchall()
+        # select para productos
+        cur.execute("SELECT product.id_producto,  product.precunidad,  product.nombreproduc,  product.id_empresa , product.stock ,supplier.nombre_empresa from product join supplier on supplier.id_empresa = product.id_empresa")
+        productos=cur.fetchall()
 
-    cur.close()
-    conn.close()
-    return render_template("warehouse.html",pedidos=user_data, productos = productos, empresas_data = empresas_data)
+        cur.close()
+        conn.close()
+
+        if request.method == 'POST':
+            conn = conector()
+            cur = conn.cursor()
+            proveedor_seleccionado = request.form.get('proveedor')
+            producto_seleccionado = request.form.get('producto')
+            cur.execute("select precunidad from product where id_producto = %s",(producto_seleccionado,))
+            precio_unitario = cur.fetchone()[0]
+
+            cur.execute("select id_employee from employees where emp_user_id = %s",(current_user.get_id()))
+            id_employee = cur.fetchone()
+            print(id_employee)
+            cur.execute("INSERT INTO public.pedidos (id_producto, cantidad, fecha, preciototalunidad, id_empresa, employee_id) VALUES (%s, %s, %s, %s, %s, %s);",(producto_seleccionado, formNewOrder.product_qty.data, date.today(), float(precio_unitario), proveedor_seleccionado, id_employee))
+            #flash(f'Cuenta creada para: {formEmployee.username.data}!', 'success')
+            cur.close()
+            conn.commit()
+            conn.close()
+            conn = conector()
+            cur = conn.cursor()
+            cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary FROM employees")
+            employees_data = cur.fetchall()
+            cur.close()
+            conn.close()
+        return render_template("warehouse.html",pedidos=user_data, productos = productos, empresas_data = empresas_data, formNewOrder = formNewOrder)
+    else:
+        return "identificate"
 
 if __name__=='__main__':
     app.run(host='0.0.0.0')

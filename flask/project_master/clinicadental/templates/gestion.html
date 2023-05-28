@@ -116,7 +116,6 @@
             float: right;
             width: 95%;
         }
-        
     </style>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -272,7 +271,7 @@
             </table>
         </div>
         <div id="horario" style="display:none;">
-            <br/>
+            <br />
             <div style="display: flex;">
                 <div> <!-- Tabla de Horas de Entrada -->
                     <table>
@@ -449,19 +448,13 @@
                                 {{ formEmployee.emp_salary(class="form-control form-control-lg") }}
                                 {% endif %}
                             </div>
-                            <div class="form-group textbox-container">
-                                {{ formEmployee.emp_user_id.label(class="form-control-label") }}
-
-                                {% if formEmployee.emp_user_id.errors %}
-                                {{ formEmployee.emp_user_id(class="form-control form-control-lg is-invalid") }}
-                                <div class="invalid-feedback textbox-container">
-                                    {% for error in formEmployee.emp_user_id.errors %}
-                                    <span>{{ error }}</span>
+                            <div>
+                                User id:  
+                                <select id="usuario" name="user">
+                                    {% for row in users %}
+                                    <option value="{{ row[0] }}">{{ row[1] }}</option>
                                     {% endfor %}
-                                </div>
-                                {% else %}
-                                {{ formEmployee.emp_user_id(class="form-control form-control-lg") }}
-                                {% endif %}
+                                </select>
                             </div>
                         </fieldset>
                         <br>

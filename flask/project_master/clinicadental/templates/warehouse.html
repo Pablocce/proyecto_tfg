@@ -228,7 +228,8 @@
 				</h1>
 				<h3 id="gestion-titulo">
 					{{ current_user.username}}
-					<button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#mymodal">
+					<button type="button" class="btn btn-secondary btn-xs" data-toggle="modal"
+						data-target="#añadir_pedido">
 						Realizar pedido
 					</button>
 				</h3>
@@ -244,7 +245,7 @@
 					</tr>
 					<tr id="abajo">
 						<td id="nombreEmpresayfecha">Company {{row[6]}} {{row[5]}}</td>
-						<td></td>
+						<td>{{row[7]}}</td>
 						<td></td>
 						<td></td>
 						<td></td>
@@ -293,6 +294,63 @@
 			</table>
 		</div>
 	</div>
+	</div>
+
+
+	<div class="modal fade" id="añadir_pedido" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+		aria-hidden="ture">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Crear nuevo pedido</h5>
+				</div>
+				<div class="modal-body">
+					<form method="post">
+						<fieldset class="form-group">
+							<div>
+								Seleccione un proveedor:
+								<select name="proveedor">
+									{% for row in empresas_data %}
+									<option value="{{ row[0] }}">{{ row[1] }}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<br />
+							<div>
+								Seleccione un producto:
+								<select name="producto">
+									{% for row in productos %}
+									<option value="{{ row[0] }}" data-empresa="{{ row[3] }}">{{ row[2] }}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<br/>
+							<div class="form-group textbox-container">
+								{{ formNewOrder.product_qty.label(class="form-control-label") }}:
+					
+								{% if formNewOrder.product_qty.errors %}
+								{{ formNewOrder.product_qty(class="form-control form-control-lg is-invalid") }}
+								<div class="invalid-feedback textbox-container">
+									{% for error in formNewOrder.product_qty.errors %}
+									<span>{{ error }}</span>
+									{% endfor %}
+								</div>
+								{% else %}
+								{{ formNewOrder.product_qty(class="form-control form-control-lg") }}
+								{% endif %}
+							</div>
+						</fieldset>
+						<br/>
+						<div class="form-group">
+							<button class="btn btn-primary" type="submit">Añadir pedido</button>
+						</div>	
+					</form>
+					
+				</div>
+			</div>
+
+		</div>
+
 	</div>
 
 
@@ -353,6 +411,29 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-Gy4Q+YAFv5BXzynKC8PfdZKbQ5pr1vLXLdWt8Xj05ePpjCilcbvID+TGnyx8InMh"
 		crossorigin="anonymous"></script>
+
+	<script>
+		function mostrarProductos() {
+			var proveedorSeleccionado = document.getElementById("proveedor").value;
+			var productos = document.getElementById("producto").getElementsByTagName("option");
+
+			// Limpiar el ComboBox de productos seleccionando la opción en blanco
+			document.getElementById("producto").selectedIndex = -1;
+
+			for (var i = 0; i < productos.length; i++) {
+				var empresa = productos[i].getAttribute("data-empresa");
+
+				if (proveedorSeleccionado === "todos" || empresa === proveedorSeleccionado) {
+					productos[i].style.display = "block";
+				} else {
+					productos[i].style.display = "none";
+				}
+			}
+		}
+
+
+		mostrarProductos(); // Mostrar productos correspondientes al proveedor seleccionado al cargar la página
+	</script>
 
 
 </body>
