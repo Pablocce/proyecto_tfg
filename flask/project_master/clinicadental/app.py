@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
-from forms import RegistrationForm, LoginForm, ChangePasswordForm, NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse
+from forms import RegistrationForm, LoginForm, ChangePasswordForm,ChangeProductPrice, ChangeProductPrice,  NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse, NewProductWarehouse
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
@@ -141,6 +141,16 @@ def delete_emp(id):
     conn.close()
     return redirect(url_for('gestion'))
 
+@app.route('/deleteorder/<id>', methods=['GET','POST'])
+def delete_order(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM pedidos WHERE id_pedido = %s",(id,))
+    cur.close()
+    conn.commit()
+    conn.close()
+    return redirect(url_for('warehouse'))
+
 @app.route('/schedule/<id>', methods=['GET','POST'])
 def schedule_emp(id):
     formEmployee = NewEmployeeSchedule()
@@ -264,17 +274,19 @@ def account():
         conn.close()
     return render_template('account.html', title='Account', form=form)
 
+
 @app.route("/pedidos", methods=['GET', 'POST'])
 def warehouse():
     if current_user.is_authenticated:
         formNewOrder = NewOrderWarehouse()
+        formNewProduct = NewProductWarehouse()
+        formChangePrice = ChangeProductPrice()
         conn = conector()
         cur = conn.cursor()
 
         #select para mostrar los pedidos
-        cur.execute("SELECT id_pedido,nombreProduc,precUnidad,cantidad,precioTotalUnidad,fecha,nombre_empresa, (select emp_name from employees join pedidos on id_employee = employee_id) from pedidos p join supplier su on p.id_empresa=su.id_empresa join product produ on p.id_producto=produ.id_producto")    
-        user_data = cur.fetchall()
-        print(user_data)
+        cur.execute("SELECT id_pedido,nombreProduc,precUnidad,cantidad,precioTotalUnidad,fecha,nombre_empresa, (select emp_name from employees join pedidos on id_employee = employee_id group by emp_name) from pedidos p join supplier su on p.id_empresa=su.id_empresa join product produ on p.id_producto=produ.id_producto")    
+        pedidos = cur.fetchall()
 
         # select para empresa   
         cur.execute("SELECT * from supplier")
@@ -287,31 +299,89 @@ def warehouse():
         cur.close()
         conn.close()
 
-        if request.method == 'POST':
-            conn = conector()
-            cur = conn.cursor()
-            proveedor_seleccionado = request.form.get('proveedor')
-            producto_seleccionado = request.form.get('producto')
-            cur.execute("select precunidad from product where id_producto = %s",(producto_seleccionado,))
-            precio_unitario = cur.fetchone()[0]
-
-            cur.execute("select id_employee from employees where emp_user_id = %s",(current_user.get_id()))
-            id_employee = cur.fetchone()
-            print(id_employee)
-            cur.execute("INSERT INTO public.pedidos (id_producto, cantidad, fecha, preciototalunidad, id_empresa, employee_id) VALUES (%s, %s, %s, %s, %s, %s);",(producto_seleccionado, formNewOrder.product_qty.data, date.today(), float(precio_unitario), proveedor_seleccionado, id_employee))
-            #flash(f'Cuenta creada para: {formEmployee.username.data}!', 'success')
-            cur.close()
-            conn.commit()
-            conn.close()
-            conn = conector()
-            cur = conn.cursor()
-            cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary FROM employees")
-            employees_data = cur.fetchall()
-            cur.close()
-            conn.close()
-        return render_template("warehouse.html",pedidos=user_data, productos = productos, empresas_data = empresas_data, formNewOrder = formNewOrder)
+        return render_template("warehouse.html",pedidos=pedidos,  productos = productos,formChangePrice = formChangePrice, empresas_data = empresas_data, formNewOrder = formNewOrder, NewProductWarehouse = formNewProduct)
     else:
         return "identificate"
+    
+@app.route("/add_product", methods=['POST'])
+def add_product():
+    print("si")
+    if current_user.is_authenticated:
+        print("si")
+        formNewProduct = NewProductWarehouse()
+        conn = conector()
+        cur = conn.cursor()
+        product_name = formNewProduct.product_name.data
+        product_price = formNewProduct.product_price.data
+        product_stock = formNewProduct.product_stock.data
+        product_supplier = request.form.get('proveedor_producto')
+        print(product_supplier)
+        cur.execute("""INSERT INTO public.product
+                    (nombreproduc, precunidad, id_empresa, stock)
+                    VALUES( %s, %s, %s, %s);
+                    """,(product_name, product_price, product_supplier, product_stock))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('warehouse'))
+    else:
+        return "<p> va crack</p>"
+
+@app.route("/add_order", methods=['POST'])
+def add_order():
+    if current_user.is_authenticated:
+        formNewOrder = NewOrderWarehouse()
+        conn = conector()
+        cur = conn.cursor()
+        proveedor_seleccionado = request.form.get('proveedor')
+        producto_seleccionado = request.form.get('producto')
+        cur.execute("select precunidad from product where id_producto = %s",(producto_seleccionado,))
+        precio_unitario = cur.fetchone()[0]
+
+        cur.execute("select id_employee from employees where emp_user_id = %s",(current_user.get_id()))
+        id_employee = cur.fetchone()
+        cur.execute("INSERT INTO public.pedidos (id_producto, cantidad, fecha, preciototalunidad, id_empresa, employee_id) VALUES (%s, %s, %s, %s, %s, %s);",(producto_seleccionado, formNewOrder.product_qty.data, date.today(), float(precio_unitario), proveedor_seleccionado, id_employee))
+        cur.close()        
+        conn.commit()
+        conn.close()
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("SELECT id_employee, emp_name, emp_surname, emp_salary FROM employees")
+        employees_data = cur.fetchall()
+        cur.close()
+        conn.close()
+        return redirect(url_for('warehouse'))
+    else:
+        return "<p> va crack</p>"
+    
+def buscar_producto(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("select nombreproduc from product where id_producto = %s",(id,))
+    product_name = cur.fetchone()
+    cur.close()
+    conn.commit()
+    conn.close()
+    return product_name
+    
+
+@app.route("/actualizar_precio/<int:id>", methods=['GET', 'POST'])
+def actualizar_precio(id):
+    formChangePrice = ChangeProductPrice()
+    product_name = buscar_producto(id)
+    if request.form:
+        new_product_price = formChangePrice.product_new_price.data
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("UPDATE public.product SET precunidad=%s WHERE id_producto=%s",(new_product_price, id))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('warehouse'))
+    return render_template("update_product_price.html", ChangeProductPrice = formChangePrice, product_name = product_name[0])
+
+
+
 
 if __name__=='__main__':
     app.run(host='0.0.0.0')

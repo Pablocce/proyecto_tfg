@@ -166,6 +166,15 @@
 		#pedidos {
 			height: 100%;
 		}
+
+		.input-estilizado {
+			width: 75px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			padding: 5px;
+			font-size: 14px;
+			/* Agrega otros estilos personalizados según tus preferencias */
+		}
 	</style>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -223,8 +232,6 @@
 		<div id="pedidos" class="expandir">
 			<div class="jumbotron">
 				<h1>Pedidos
-					<button type="button" class="btn btn-sucess float-right" data-toggle="modal"
-						data-target="#mymodal"></button>
 				</h1>
 				<h3 id="gestion-titulo">
 					{{ current_user.username}}
@@ -246,7 +253,9 @@
 					<tr id="abajo">
 						<td id="nombreEmpresayfecha">Company {{row[6]}} {{row[5]}}</td>
 						<td>{{row[7]}}</td>
-						<td></td>
+						<td><a href="/deleteorder/{{row[0]}}" class="btn btn-danger btn-xs"
+								onclick="return confirm('¿Quieres borrar este pedido? Esta acción es permanente')">Borrar</a>
+						</td>
 						<td></td>
 						<td></td>
 					</tr>
@@ -259,7 +268,12 @@
 		</div>
 		<div id="productos" class="expandir" style="display:none;">
 			<table class="table ">
-				<h3>Productos</h3>
+				<h3>Productos
+					<button type="button" class="btn btn-secondary btn-xs" data-toggle="modal"
+						data-target="#añadir_producto">
+						Realizar pedido
+					</button>
+				</h3>
 				<tr>
 					<th>Producto</th>
 					<th>Precio</th>
@@ -268,12 +282,18 @@
 				</tr>
 				{% for row in productos %}
 				<tr>
-					<td>{{row[2]}}</td>
-					<td>{{row[1]}}$</td>
-					<td>{{row[4]}}</td>
-					<td>{{row[5]}}</td>
+					<td>{{ row[2] }}</td>
+					<td>
+						<div id="edit-form-{{ row[0] }}">
+							{{row[1]}}$
+							<a href="/actualizar_precio/{{ row[0] }}" class="btn btn-success btn-xs">Cambiar</a>
+						</div>
+					</td>
+					<td>{{ row[4] }}</td>
+					<td>{{ row[5] }}</td>
 				</tr>
 				{% endfor %}
+
 			</table>
 		</div>
 		<div id="empresas" class="expandir" style="display:none;">
@@ -305,7 +325,7 @@
 					<h5 class="modal-title" id="exampleModalLabel">Crear nuevo pedido</h5>
 				</div>
 				<div class="modal-body">
-					<form method="post">
+					<form method="post" action="/add_order">
 						<fieldset class="form-group">
 							<div>
 								Seleccione un proveedor:
@@ -324,10 +344,10 @@
 									{% endfor %}
 								</select>
 							</div>
-							<br/>
+							<br />
 							<div class="form-group textbox-container">
 								{{ formNewOrder.product_qty.label(class="form-control-label") }}:
-					
+
 								{% if formNewOrder.product_qty.errors %}
 								{{ formNewOrder.product_qty(class="form-control form-control-lg is-invalid") }}
 								<div class="invalid-feedback textbox-container">
@@ -340,18 +360,104 @@
 								{% endif %}
 							</div>
 						</fieldset>
-						<br/>
+						<br />
 						<div class="form-group">
 							<button class="btn btn-primary" type="submit">Añadir pedido</button>
-						</div>	
+						</div>
 					</form>
-					
+
 				</div>
 			</div>
 
 		</div>
 
 	</div>
+
+	<div class="modal fade" id="añadir_producto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+		aria-hidden="ture">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Crear nuevo pedido</h5>
+				</div>
+				<div class="modal-body">
+					<form method="post" action="/add_product">
+						<fieldset class="form-group">
+							<div class="form-group textbox-container">
+								{{ NewProductWarehouse.product_name.label(class="form-control-label") }}:
+
+								{% if NewProductWarehouse.product_name.errors %}
+								{{ NewProductWarehouse.product_name(class="form-control form-control-lg is-invalid") }}
+								<div class="invalid-feedback textbox-container">
+									{% for error in NewProductWarehouse.product_name.errors %}
+									<span>{{ error }}</span>
+									{% endfor %}
+								</div>
+								{% else %}
+								{{ NewProductWarehouse.product_name(class="form-control form-control-lg") }}
+								{% endif %}
+							</div>
+							<br />
+							<div class="form-group textbox-container">
+								{{ NewProductWarehouse.product_price.label(class="form-control-label") }}:
+
+								{% if NewProductWarehouse.product_price.errors %}
+								{{ NewProductWarehouse.product_price(class="form-control form-control-lg is-invalid") }}
+								<div class="invalid-feedback textbox-container">
+									{% for error in NewProductWarehouse.product_price.errors %}
+									<span>{{ error }}</span>
+									{% endfor %}
+								</div>
+								{% else %}
+								{{ NewProductWarehouse.product_price(class="form-control form-control-lg") }}
+								{% endif %}
+							</div>
+							</br>
+							<div class="form-group textbox-container">
+								{{ NewProductWarehouse.product_stock.label(class="form-control-label") }}:
+
+								{% if NewProductWarehouse.product_stock.errors %}
+								{{ NewProductWarehouse.product_stock(class="form-control form-control-lg is-invalid") }}
+								<div class="invalid-feedback textbox-container">
+									{% for error in NewProductWarehouse.product_stock.errors %}
+									<span>{{ error }}</span>
+									{% endfor %}
+								</div>
+								{% else %}
+								{{ NewProductWarehouse.product_stock(class="form-control form-control-lg") }}
+								{% endif %}
+							</div>
+							</br>
+							<div>
+								Seleccione un proveedor:
+								<select name="proveedor_producto">
+									{% for row in empresas_data %}
+									<option value="{{ row[0] }}">{{ row[1] }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+						</fieldset>
+						<br />
+						<div class="form-group">
+							<button class="btn btn-primary" type="submit">Añadir pedido</button>
+						</div>
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+
+
+
+
+
+
+
 
 
 
@@ -407,6 +513,7 @@
 
 	</script>
 
+
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-Gy4Q+YAFv5BXzynKC8PfdZKbQ5pr1vLXLdWt8Xj05ePpjCilcbvID+TGnyx8InMh"
@@ -436,6 +543,7 @@
 	</script>
 
 
+	</div>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 #tipo de dato y meter dominios dentro
-from wtforms import StringField , PasswordField, SubmitField, BooleanField, IntegerField
+from wtforms import StringField , PasswordField, SubmitField, BooleanField, IntegerField, DecimalField
 #importamos validadores
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, AnyOf, Regexp
 import email_validator
@@ -94,11 +94,21 @@ class NewEmployeeSchedule(FlaskForm):
 
     submit = SubmitField('Añadir horario')
 
-    
+class NewProductWarehouse(FlaskForm):
+    product_name = StringField('Nombre del producto', validators=[DataRequired()])
+    product_price = DecimalField('Precio del producto', validators=[DataRequired()])
+    product_stock = IntegerField('Stock del producto', validators=[DataRequired()])
+    submit = SubmitField('Añadir producto')
 
+
+class ChangeProductPrice(FlaskForm):
+    product_new_price = DecimalField('Nuevo precio del producto', validators=[DataRequired()])
 
 #form warehouse
 class NewOrderWarehouse(FlaskForm):
     product_qty = IntegerField('Cantidad del producto', validators=[DataRequired()])
     submit = SubmitField('Crear pedido')
-    pass
+
+class ChangeProductPrice(FlaskForm):
+    product_new_price = DecimalField('Precio nuevo del producto', validators=[DataRequired()])
+    submit = SubmitField('Cambiar precio')
