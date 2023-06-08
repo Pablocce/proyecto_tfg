@@ -279,18 +279,30 @@
 					<th>Precio</th>
 					<th>Stock</th>
 					<th>Proveedor</th>
+					<th>Acciones</th>
 				</tr>
 				{% for row in productos %}
 				<tr>
 					<td>{{ row[2] }}</td>
 					<td>
-						<div id="edit-form-{{ row[0] }}">
-							{{row[1]}}$
-							<a href="/actualizar_precio/{{ row[0] }}" class="btn btn-success btn-xs">Cambiar</a>
+						<div id="edit-form-{{ row[0] }}" style="display: flex; align-items: center;">
+							<span style="margin-right: auto;">{{ row[1] }}$</span>
+							<a href="/actualizar_precio/{{ row[0] }}" class="btn btn-success btn-xs">
+								<i class="fa-solid fa-square-pen"></i>
+							</a>
 						</div>
 					</td>
-					<td>{{ row[4] }}</td>
+					<td>
+						<div id="edit-form-{{ row[4] }}" style="display: flex; align-items: center;">
+							<span style="margin-right: auto;">{{ row[4] }} uds</span>
+							<a href="/actualizar_stock/{{ row[0] }}" class="btn btn-success btn-xs">
+								<i class="fa-solid fa-square-pen"></i>
+							</a>
+						</div>
+					</td>
 					<td>{{ row[5] }}</td>
+					<td><a href="/deleteproduct/{{row[0]}}" class="btn btn-danger btn-xs"
+						onclick="return confirm('¿Quieres borrar este producto? Si hay una orden con este producto, se eliminara.  Esta acción es permanente')">Delete</a></td>
 				</tr>
 				{% endfor %}
 
@@ -300,15 +312,24 @@
 			<h1>
 				Tabla empresas
 			</h1>
+			<h3 id="gestion-titulo">
+				<button type="button" class="btn btn-secondary btn-xs" data-toggle="modal"
+					data-target="#añadir_empresa">
+					Añadir empresa
+				</button>
+			</h3>
 			<table class="table table-hover">
 				<tr>
 					<th>ID</th>
 					<th>Nombre de la empresa</th>
+					<th>Acción</th>
 				</tr>
 				{% for row in empresas_data %}
 				<tr>
 					<td>{{row[0]}}</td>
 					<td>{{row[1]}}</td>
+					<td><a href="/deletesupplier/{{row[0]}}" class="btn btn-danger btn-xs"
+						onclick="return confirm('¿Quieres borrar esta empresa? Si hay una orden o producto con esta empresa, se eliminara.  Esta acción es permanente')">Borrar</a></td>
 				</tr>
 				{% endfor %}
 			</table>
@@ -451,17 +472,44 @@
 
 	</div>
 
+	<div class="modal fade" id="añadir_empresa" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+		aria-hidden="ture">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Crear nuevo pedido</h5>
+				</div>
+				<div class="modal-body">
+					<form method="post" action="/add_supplier">
+						<fieldset class="form-group">
+							<div class="form-group textbox-container">
+								{{ formNewSupplier.supplier_name.label(class="form-control-label") }}:
 
+								{% if formNewSupplier.supplier_name.errors %}
+								{{ formNewSupplier.supplier_name(class="form-control form-control-lg is-invalid") }}
+								<div class="invalid-feedback textbox-container">
+									{% for error in formNewSupplier.supplier_name.errors %}
+									<span>{{ error }}</span>
+									{% endfor %}
+								</div>
+								{% else %}
+								{{ formNewSupplier.supplier_name(class="form-control form-control-lg") }}
+								{% endif %}
+							</div>
+							<br />
+						</fieldset>
+						<br />
+						<div class="form-group">
+							<button class="btn btn-primary" type="submit">Añadir pedido</button>
+						</div>
+					</form>
 
+				</div>
+			</div>
 
+		</div>
 
-
-
-
-
-
-
-
+	</div>
 
 	<script>
 		function mostrarContenido(opcionSeleccionada) {
@@ -506,13 +554,9 @@
 				ajustesBtn.classList.remove("active");
 				productosBtn.classList.remove("active");
 				empresasBtn.classList.add("active");
-
 			}
 		}
-
-
 	</script>
-
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
-from forms import RegistrationForm, LoginForm, ChangePasswordForm,ChangeProductPrice, ChangeProductPrice,  NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse, NewProductWarehouse
+from forms import RegistrationForm, LoginForm, ChangePasswordForm,ChangeProductPrice,AddNewSupplier,  ChangeProductPrice,  NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse, NewProductWarehouse, ChangeProductStock
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
@@ -281,6 +281,7 @@ def warehouse():
         formNewOrder = NewOrderWarehouse()
         formNewProduct = NewProductWarehouse()
         formChangePrice = ChangeProductPrice()
+        formNewSupplier = AddNewSupplier()
         conn = conector()
         cur = conn.cursor()
 
@@ -299,15 +300,13 @@ def warehouse():
         cur.close()
         conn.close()
 
-        return render_template("warehouse.html",pedidos=pedidos,  productos = productos,formChangePrice = formChangePrice, empresas_data = empresas_data, formNewOrder = formNewOrder, NewProductWarehouse = formNewProduct)
+        return render_template("warehouse.html",pedidos=pedidos,  productos = productos,formChangePrice = formChangePrice, empresas_data = empresas_data, formNewOrder = formNewOrder, NewProductWarehouse = formNewProduct , formNewSupplier = formNewSupplier)
     else:
         return "identificate"
     
 @app.route("/add_product", methods=['POST'])
 def add_product():
-    print("si")
     if current_user.is_authenticated:
-        print("si")
         formNewProduct = NewProductWarehouse()
         conn = conector()
         cur = conn.cursor()
@@ -326,6 +325,34 @@ def add_product():
         return redirect(url_for('warehouse'))
     else:
         return "<p> va crack</p>"
+
+@app.route('/deletesupplier/<id>', methods=['GET','POST'])
+def delete_supplier(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM supplier WHERE id_empresa = %s",(id,))
+    cur.close()
+    conn.commit()
+    conn.close()
+    return redirect(url_for('warehouse'))
+
+@app.route("/add_supplier" , methods=['POST'])
+def add_supplier():
+    if current_user.is_authenticated:
+        formNewSupplier = AddNewSupplier()
+        conn = conector()
+        cur = conn.cursor()
+        supplier_name = formNewSupplier.supplier_name.data
+        cur.execute("""INSERT INTO public.supplier
+                    (nombre_empresa)
+                    VALUES(%s);
+                    """,(supplier_name,))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('warehouse'))
+    else:
+        pass
 
 @app.route("/add_order", methods=['POST'])
 def add_order():
@@ -380,8 +407,30 @@ def actualizar_precio(id):
         return redirect(url_for('warehouse'))
     return render_template("update_product_price.html", ChangeProductPrice = formChangePrice, product_name = product_name[0])
 
+@app.route("/actualizar_stock/<int:id>", methods=['GET', 'POST'])
+def actualizar_stock(id):
+    formChangeStock = ChangeProductStock()
+    product_name = buscar_producto(id)
+    if request.form:
+        new_product_stock = formChangeStock.product_new_stock.data
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("UPDATE public.product SET stock=%s WHERE id_producto=%s",(new_product_stock, id))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('warehouse'))
+    return render_template("update_product_stock.html", ChangeProductStock = formChangeStock, product_name = product_name[0])
 
-
+@app.route('/deleteproduct/<id>', methods=['GET','POST'])
+def delete_product(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM product WHERE id_producto = %s",(id,))
+    cur.close()
+    conn.commit()
+    conn.close()
+    return redirect(url_for('warehouse'))
 
 if __name__=='__main__':
     app.run(host='0.0.0.0')

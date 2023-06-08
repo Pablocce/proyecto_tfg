@@ -112,3 +112,11 @@ class NewOrderWarehouse(FlaskForm):
 class ChangeProductPrice(FlaskForm):
     product_new_price = DecimalField('Precio nuevo del producto', validators=[DataRequired()])
     submit = SubmitField('Cambiar precio')
+
+class ChangeProductStock(FlaskForm):
+    product_new_stock = IntegerField('Nuevo stock del producto', validators=[DataRequired()])
+    submit = SubmitField('Cambiar stock')
+
+class AddNewSupplier(FlaskForm):
+    supplier_name = StringField('Nombre de la empresa', validators=[DataRequired()])
+    submit = SubmitField('Cambiar stock')
