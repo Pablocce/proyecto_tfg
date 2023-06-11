@@ -153,60 +153,64 @@ def modify_emp(id):
 
 @app.route('/deleteemp/<id>', methods=['GET','POST'])
 def delete_emp(id):
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM employees WHERE id_employee = %s", (id,))
-    cur.close()
-    conn.commit()
-    conn.close()
-    return redirect(url_for('gestion'))
-
-@app.route('/deleteorder/<id>', methods=['GET','POST'])
-def delete_order(id):
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM pedidos WHERE id_pedido = %s",(id,))
-    cur.close()
-    conn.commit()
-    conn.close()
-    return redirect(url_for('warehouse'))
-
-@app.route('/schedule/<id>', methods=['GET','POST'])
-def schedule_emp(id):
-    formEmployee = NewEmployeeSchedule()
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("SELECT emp_name from employees where id_employee = %s",(id,))
-    employee_name = cur.fetchmany()
-    employee_name = employee_name[0]
-    cur.execute("SELECT schedule_id, id_employee, day, start_time, end_time FROM emp_schedule WHERE id_employee = %s ORDER BY CASE day WHEN 'lunes' THEN 1 WHEN 'martes' THEN 2 WHEN 'miércoles' THEN 3 WHEN 'jueves' THEN 4 WHEN 'viernes' THEN 5 ELSE 6 END", (id,))
-    employee_schedule = cur.fetchall()  
-    cur.close()
-    conn.close()
-    if request.form:
+    if current_user.is_authenticated:
         conn = conector()
         cur = conn.cursor()
-        day = formEmployee.schedule_day.data 
-        entry = formEmployee.schedule_entry.data
-        exit = formEmployee.schedule_exit.data
-        cur.execute("INSERT INTO public.emp_schedule (id_employee, day, start_time, end_time) VALUES(%s,%s,%s,%s)",(id,day,entry,exit))
+        cur.execute("DELETE FROM employees WHERE id_employee = %s", (id,))
         cur.close()
         conn.commit()
         conn.close()
-        return redirect(f'/schedule/{id}') 
-    return render_template('schedule.html',formEmployee = formEmployee, employee_schedule = employee_schedule, employee_name = employee_name)
+        return redirect(url_for('gestion'))
+
+@app.route('/deleteorder/<id>', methods=['GET','POST'])
+def delete_order(id):
+    if current_user.is_authenticated:
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM pedidos WHERE id_pedido = %s",(id,))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('warehouse'))
+
+@app.route('/schedule/<id>', methods=['GET','POST'])
+def schedule_emp(id):
+    if current_user.is_authenticated:
+        formEmployee = NewEmployeeSchedule()
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("SELECT emp_name from employees where id_employee = %s",(id,))
+        employee_name = cur.fetchmany()
+        employee_name = employee_name[0]
+        cur.execute("SELECT schedule_id, id_employee, day, start_time, end_time FROM emp_schedule WHERE id_employee = %s ORDER BY CASE day WHEN 'lunes' THEN 1 WHEN 'martes' THEN 2 WHEN 'miércoles' THEN 3 WHEN 'jueves' THEN 4 WHEN 'viernes' THEN 5 ELSE 6 END", (id,))
+        employee_schedule = cur.fetchall()  
+        cur.close()
+        conn.close()
+        if request.form:
+            conn = conector()
+            cur = conn.cursor()
+            day = formEmployee.schedule_day.data 
+            entry = formEmployee.schedule_entry.data
+            exit = formEmployee.schedule_exit.data
+            cur.execute("INSERT INTO public.emp_schedule (id_employee, day, start_time, end_time) VALUES(%s,%s,%s,%s)",(id,day,entry,exit))
+            cur.close()
+            conn.commit()
+            conn.close()
+            return redirect(f'/schedule/{id}') 
+        return render_template('schedule.html',formEmployee = formEmployee, employee_schedule = employee_schedule, employee_name = employee_name)
 
 @app.route('/schedule_delete/<id>')
 def schedule_delete(id):
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("select id_employee from emp_schedule where schedule_id = %s",(id,))
-    id_user = cur.fetchone
-    cur.execute("delete from emp_schedule where schedule_id = %s",(id,))
-    cur.close() 
-    conn.commit()
-    conn.close()
-    return redirect('/gestion') 
+    if current_user.is_authenticated:
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("select id_employee from emp_schedule where schedule_id = %s",(id,))
+        id_user = cur.fetchone
+        cur.execute("delete from emp_schedule where schedule_id = %s",(id,))
+        cur.close() 
+        conn.commit()
+        conn.close()
+        return redirect('/gestion') 
 
 @app.route('/register', methods=['GET', 'POST'])  #methods permite a flask ejecutar estos metodos desde las clases pertinentes
 def register():
@@ -276,23 +280,24 @@ def logout():
 
 @app.route("/account",methods=['GET', 'POST'])
 def account():
-    conn = conector()
-    form = ChangePasswordForm()
-    if form.validate_on_submit():
-        cur = conn.cursor()
-        name = current_user.username
-        old_password = form.old_password.data
-        new_password = form.new_password.data
-        cur.execute("select * from users where username=%s and user_password=%s",(name,old_password))
-        user_data = cur.fetchone()
-        if user_data is not None:
-            cur.execute("update users set user_password = %s where user_password = %s", (new_password, old_password))
-        else:
-            flash(f'Introduce correctamente la antigua contraseña', 'danger')
-        cur.close()
-        conn.commit()
-        conn.close()
-    return render_template('account.html', title='Account', form=form)
+    if current_user.is_authenticated:
+        conn = conector()
+        form = ChangePasswordForm()
+        if form.validate_on_submit():
+            cur = conn.cursor()
+            name = current_user.username
+            old_password = form.old_password.data
+            new_password = form.new_password.data
+            cur.execute("select * from users where username=%s and user_password=%s",(name,old_password))
+            user_data = cur.fetchone()
+            if user_data is not None:
+                cur.execute("update users set user_password = %s where user_password = %s", (new_password, old_password))
+            else:
+                flash(f'Introduce correctamente la antigua contraseña', 'danger')
+            cur.close()
+            conn.commit()
+            conn.close()
+        return render_template('account.html', title='Account', form=form)
 
 
 @app.route("/pedidos", methods=['GET', 'POST'])
@@ -347,13 +352,14 @@ def add_product():
 
 @app.route('/deletesupplier/<id>', methods=['GET','POST'])
 def delete_supplier(id):
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM supplier WHERE id_empresa = %s",(id,))
-    cur.close()
-    conn.commit()
-    conn.close()
-    return redirect(url_for('warehouse'))
+    if current_user.is_authenticated:
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM supplier WHERE id_empresa = %s",(id,))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('warehouse'))
 
 @app.route("/add_supplier" , methods=['POST'])
 def add_supplier():
@@ -413,43 +419,46 @@ def buscar_producto(id):
 
 @app.route("/actualizar_precio/<int:id>", methods=['GET', 'POST'])
 def actualizar_precio(id):
-    formChangePrice = ChangeProductPrice()
-    product_name = buscar_producto(id)
-    if request.form:
-        new_product_price = formChangePrice.product_new_price.data
-        conn = conector()
-        cur = conn.cursor()
-        cur.execute("UPDATE public.product SET precunidad=%s WHERE id_producto=%s",(new_product_price, id))
-        cur.close()
-        conn.commit()
-        conn.close()
-        return redirect(url_for('warehouse'))
-    return render_template("update_product_price.html", ChangeProductPrice = formChangePrice, product_name = product_name[0])
+    if current_user.is_authenticated:
+        formChangePrice = ChangeProductPrice()
+        product_name = buscar_producto(id)
+        if request.form:
+            new_product_price = formChangePrice.product_new_price.data
+            conn = conector()
+            cur = conn.cursor()
+            cur.execute("UPDATE public.product SET precunidad=%s WHERE id_producto=%s",(new_product_price, id))
+            cur.close()
+            conn.commit()
+            conn.close()
+            return redirect(url_for('warehouse'))
+        return render_template("update_product_price.html", ChangeProductPrice = formChangePrice, product_name = product_name[0])
 
 @app.route("/actualizar_stock/<int:id>", methods=['GET', 'POST'])
 def actualizar_stock(id):
-    formChangeStock = ChangeProductStock()
-    product_name = buscar_producto(id)
-    if request.form:
-        new_product_stock = formChangeStock.product_new_stock.data
+    if current_user.is_authenticated:
+        formChangeStock = ChangeProductStock()
+        product_name = buscar_producto(id)
+        if request.form:
+            new_product_stock = formChangeStock.product_new_stock.data
+            conn = conector()
+            cur = conn.cursor()
+            cur.execute("UPDATE public.product SET stock=%s WHERE id_producto=%s",(new_product_stock, id))
+            cur.close()
+            conn.commit()
+            conn.close()
+            return redirect(url_for('warehouse'))
+        return render_template("update_product_stock.html", ChangeProductStock = formChangeStock, product_name = product_name[0])
+
+@app.route('/deleteproduct/<id>', methods=['GET','POST'])
+def delete_product(id):
+    if current_user.is_authenticated:
         conn = conector()
         cur = conn.cursor()
-        cur.execute("UPDATE public.product SET stock=%s WHERE id_producto=%s",(new_product_stock, id))
+        cur.execute("DELETE FROM product WHERE id_producto = %s",(id,))
         cur.close()
         conn.commit()
         conn.close()
         return redirect(url_for('warehouse'))
-    return render_template("update_product_stock.html", ChangeProductStock = formChangeStock, product_name = product_name[0])
-
-@app.route('/deleteproduct/<id>', methods=['GET','POST'])
-def delete_product(id):
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM product WHERE id_producto = %s",(id,))
-    cur.close()
-    conn.commit()
-    conn.close()
-    return redirect(url_for('warehouse'))
 
 
 @app.route("/citas", methods=['GET', 'POST'])
@@ -507,34 +516,36 @@ def add_apointment():
 
 @app.route('/deleteapointment/<id>', methods=['GET','POST'])
 def delete_apointment(id):
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM citas WHERE id_cita = %s",(id,))
-    cur.close()
-    conn.commit()
-    conn.close()
-    return redirect(url_for('citas'))
+    if current_user.is_authenticated:
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM citas WHERE id_cita = %s",(id,))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('citas'))
 
 @app.route('/search_apointments', methods=['GET', 'POST'])
 def search_apointments():
-    formSearchApointment = SearchApointmentForm()
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("""
-                    SELECT c.id_cita, p.paciente_nombre AS nombre_paciente, p.paciente_apellidos AS apellidos_paciente,
-                        e.emp_name AS nombre_medico, e.emp_surname AS apellido_medico,
-                        c.procedimiento, c.fecha, c.hora, c.notas
-                    FROM citas c
-                    JOIN pacientes p ON c.id_paciente = p.DNI
-                    JOIN employees e ON c.id_medico = e.id_employee
-                    WHERE c.id_paciente = %s
-                    ORDER BY c.fecha ASC, c.hora ASC
-                """, (request.form.get('paciente'),))
-    pacient_data = cur.fetchall()
-    cur.close()
-    conn.commit()
-    conn.close()
-    return render_template('search_apointments.html', title='Pacientes', pacient_data = pacient_data, formSearchApointment = formSearchApointment)
+    if current_user.is_authenticated:
+        formSearchApointment = SearchApointmentForm()
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("""
+                        SELECT c.id_cita, p.paciente_nombre AS nombre_paciente, p.paciente_apellidos AS apellidos_paciente,
+                            e.emp_name AS nombre_medico, e.emp_surname AS apellido_medico,
+                            c.procedimiento, c.fecha, c.hora, c.notas
+                        FROM citas c
+                        JOIN pacientes p ON c.id_paciente = p.DNI
+                        JOIN employees e ON c.id_medico = e.id_employee
+                        WHERE c.id_paciente = %s
+                        ORDER BY c.fecha ASC, c.hora ASC
+                    """, (request.form.get('paciente'),))
+        pacient_data = cur.fetchall()
+        cur.close()
+        conn.commit()
+        conn.close()
+        return render_template('search_apointments.html', title='Pacientes', pacient_data = pacient_data, formSearchApointment = formSearchApointment)
 
 def search_pacients():
     conn = conector()
@@ -584,45 +595,47 @@ def add_patient():
 
 @app.route('/deletepatient/<id>', methods=['GET','POST'])
 def delete_patient(id):
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM pacientes WHERE dni = %s",(id,))
-    cur.close()
-    conn.commit()
-    conn.close()
-    return redirect(url_for('patients'))
+    if current_user.is_authenticated:
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM pacientes WHERE dni = %s",(id,))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('patients'))
 
 @app.route('/search_pacient', methods=['POST'])
 def search_patient():
-    formNewPatient = NewPatientForm()
-    formSearchPatient = SearchPatientForm()
-    conn = conector()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM pacientes WHERE dni = %s", (formSearchPatient.patient_dni.data,))
-    patient_dni = cur.fetchone()
-    cur.close()
-    conn.commit()
-    conn.close()
+    if current_user.is_authenticated:
+        formSearchPatient = SearchPatientForm()
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM pacientes WHERE dni = %s", (formSearchPatient.patient_dni.data,))
+        patient_dni = cur.fetchone()
+        cur.close()
+        conn.commit()
+        conn.close()
 
-    if patient_dni is None:
-        flash("No existe ese paciente", "error")
-        return redirect(url_for('patients'))
-    else:
-        # Realiza alguna acción con los datos del paciente encontrado
-        # y muestra la respuesta en la página correspondiente
-        #return render_template('patients_history.html', id=patient_dni, form=formSearchPatient)
-        return redirect(url_for('patients_history', id=patient_dni))
+        if patient_dni is None:
+            flash("No existe ese paciente", "error")
+            return redirect(url_for('patients'))
+        else:
+            # Realiza alguna acción con los datos del paciente encontrado
+            # y muestra la respuesta en la página correspondiente
+            #return render_template('patients_history.html', id=patient_dni, form=formSearchPatient)
+            return redirect(url_for('patients_history', id=patient_dni))
 
 @app.route('/patients_history<id>', methods=['GET', 'POST'])
 def patients_history(id):
-    conn = conector()
-    cur = conn.cursor()
-    lista = ast.literal_eval(id)
-    cur.execute("SELECT * FROM historial_clinico WHERE paciente_dni = %s", (lista[0],))
-    patients_history = cur.fetchall()
-    cur.close()
-    conn.close()
-    return render_template('patients_history.html', id=id, patients_history = patients_history)
+    if current_user.is_authenticated:
+        conn = conector()
+        cur = conn.cursor()
+        lista = ast.literal_eval(id)
+        cur.execute("SELECT * FROM historial_clinico WHERE paciente_dni = %s", (lista[0],))
+        patients_history = cur.fetchall()
+        cur.close()
+        conn.close()
+        return render_template('patients_history.html', id=id, patients_history = patients_history)
 
 
 if __name__=='__main__':

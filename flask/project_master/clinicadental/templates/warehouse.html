@@ -297,12 +297,13 @@
 		</div>
 		<div id="productos" class="expandir" style="display:none;">
 			<table class="table ">
-				<h3>Productos
-					<button type="button" class="btn btn-secondary btn-xs" data-toggle="modal"
-						data-target="#añadir_producto">
-						Realizar pedido
+				<h3 class="d-flex justify-content-between align-items-center" style="padding-right: 3vh;">
+					Productos
+					<button type="button" class="btn btn-secondary btn-xs " data-toggle="modal" data-target="#añadir_producto">
+						Añadir productos
 					</button>
 				</h3>
+				
 				<tr>
 					<th>Producto</th>
 					<th>Precio</th>
@@ -392,6 +393,7 @@
 							<div>
 								Seleccione un producto:
 								<select name="producto">
+									<option value="" selected>Seleccione...</option>
 									{% for row in productos %}
 									<option value="{{ row[0] }}" data-empresa="{{ row[3] }}">{{ row[2] }}</option>
 									{% endfor %}
