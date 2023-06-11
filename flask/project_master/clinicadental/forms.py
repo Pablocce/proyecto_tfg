@@ -110,7 +110,7 @@ class NewOrderWarehouse(FlaskForm):
     submit = SubmitField('Crear pedido')
 
 class ChangeProductPrice(FlaskForm):
-    product_new_price = DecimalField('Precio nuevo del producto', validators=[DataRequired()])
+    product_new_price = DecimalField('Nuevo precio', validators=[DataRequired()])
     submit = SubmitField('Cambiar precio')
 
 class ChangeProductStock(FlaskForm):
@@ -161,3 +161,7 @@ class UpdateApointmentForm(FlaskForm):
     apointment_hour = TimeField('Nueva hora de la cita', validators=[DataRequired()])
 
     submit = SubmitField('Modificar cita')
+
+class UpdateResultsForm(FlaskForm):
+    results = TextAreaField('Diagnóstico del paciente', validators=[DataRequired()])
+    submit = SubmitField('Añadir diagnóstico')

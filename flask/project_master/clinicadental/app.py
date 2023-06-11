@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
 from forms import RegistrationForm, LoginForm, ChangePasswordForm, SearchPatientForm, NewApointmentForm, ChangeProductPrice,AddNewSupplier,  NewPatientForm, ChangeProductPrice,  NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse, NewProductWarehouse, ChangeProductStock
-from forms import SearchApointmentForm, UpdateApointmentForm
+from forms import SearchApointmentForm, UpdateApointmentForm, UpdateResultsForm
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
@@ -636,6 +636,26 @@ def patients_history(id):
         cur.close()
         conn.close()
         return render_template('patients_history.html', id=id, patients_history = patients_history)
+
+
+@app.route('/modifyhistory/<id>', methods=['GET', 'POST'])
+def añadir_diagnostico(id):
+    if current_user.is_authenticated:
+        NewUpdateResultsForm = UpdateResultsForm()
+        if request.form:
+            conn = conector()
+            cur = conn.cursor()
+            cur.execute("UPDATE historial_clinico SET diagnostico = %s WHERE id = %s", (NewUpdateResultsForm.results.data, id,))
+            cur.close()
+            conn.commit()
+            conn.close()
+            print("prueba")
+            return redirect(url_for('patients'))
+    return render_template('modifyhistory.html', NewUpdateResultsForm=NewUpdateResultsForm)
+
+
+
+
 
 
 if __name__=='__main__':
