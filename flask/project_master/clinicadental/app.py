@@ -1,9 +1,13 @@
 from flask import Flask, render_template, flash, redirect, url_for, request
-from forms import RegistrationForm, LoginForm, ChangePasswordForm,ChangeProductPrice,AddNewSupplier,  ChangeProductPrice,  NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse, NewProductWarehouse, ChangeProductStock
+from forms import RegistrationForm, LoginForm, ChangePasswordForm, SearchPatientForm, NewApointmentForm, ChangeProductPrice,AddNewSupplier,  NewPatientForm, ChangeProductPrice,  NewEmployeeForm, DeleteEmployee, EditEmployeeForm, NewEmployeeSchedule, NewOrderWarehouse, NewProductWarehouse, ChangeProductStock
+from forms import SearchApointmentForm, UpdateApointmentForm
 from flask_login import LoginManager
 from flask_login import login_user, current_user, UserMixin, logout_user
 from time import sleep
 from datetime import date
+import ast
+import datetime
+
 
 import psycopg2
 
@@ -30,8 +34,24 @@ app.config['SECRET_KEY'] = '898572ebbc3be7c4bbc0222472fbd928'
 @app.route('/') 
 #decoramos para indicar que se liga a la ruta raiz
 def index():
-    #render_template sirve para renderizar los hmtl
-    return render_template('base.html')
+    conn = conector()
+    cur = conn.cursor()
+    fecha_actual = datetime.date.today()
+    cur.execute("""
+        SELECT c.id_cita, p.paciente_nombre AS nombre_paciente, p.paciente_apellidos AS apellidos_paciente,
+            e.emp_name AS nombre_medico, e.emp_surname AS apellido_medico,
+            c.procedimiento, c.fecha, c.hora, c.notas
+        FROM citas c
+        JOIN pacientes p ON c.id_paciente = p.DNI
+        JOIN employees e ON c.id_medico = e.id_employee
+        WHERE c.fecha = %s
+        ORDER BY c.fecha ASC, c.hora ASC
+    """, (fecha_actual,))
+
+    citas_data = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('base.html', citas_data = citas_data)
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -314,7 +334,6 @@ def add_product():
         product_price = formNewProduct.product_price.data
         product_stock = formNewProduct.product_stock.data
         product_supplier = request.form.get('proveedor_producto')
-        print(product_supplier)
         cur.execute("""INSERT INTO public.product
                     (nombreproduc, precunidad, id_empresa, stock)
                     VALUES( %s, %s, %s, %s);
@@ -431,6 +450,180 @@ def delete_product(id):
     conn.commit()
     conn.close()
     return redirect(url_for('warehouse'))
+
+
+@app.route("/citas", methods=['GET', 'POST'])
+def citas(): 
+    if current_user.is_authenticated:
+        formNewApointment = NewApointmentForm()
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("""SELECT c.id_cita, p.paciente_nombre AS nombre_paciente, p.paciente_apellidos AS apellidos_paciente,
+                        e.emp_name AS nombre_medico, e.emp_surname AS apellido_medico,
+                        c.procedimiento, c.fecha, c.hora, c.notas
+                        FROM citas c
+                        JOIN pacientes p ON c.id_paciente = p.DNI
+                        JOIN employees e ON c.id_medico = e.id_employee
+                        ORDER BY c.fecha ASC, c.hora ASC""")
+        apointments = cur.fetchall()
+        cur.close()
+        conn.commit()
+        conn.close()
+        return render_template('apointments.html', apointments = apointments, patients_data = search_pacients(), doctors_data = search_doctors(), formNewApointment = formNewApointment)
+
+
+@app.route("/update_apointment/<int:id>", methods=['GET', 'POST'])
+def update_apointment(id):
+    if current_user.is_authenticated:
+        formUpdateApointment = UpdateApointmentForm()
+        if formUpdateApointment.validate_on_submit():
+            conn = conector()
+            cur = conn.cursor()
+            cur.execute("update citas set fecha = %s, hora = %s where id_cita = %s",
+                        (formUpdateApointment.apointment_date.data, formUpdateApointment.apointment_hour.data, id))
+            cur.close()
+            conn.commit()
+            conn.close()
+            return redirect(url_for('citas'))  # Redirige a la página de citas
+        return render_template('update_apointment.html', formUpdateApointment=formUpdateApointment)
+
+
+@app.route("/add_apointment", methods=['GET', 'POST'])
+def add_apointment():
+    if current_user.is_authenticated:
+        formNewApointment = NewApointmentForm()
+        conn = conector()
+        cur = conn.cursor()
+        paciente_seleccionado = request.form.get('paciente')
+        doctor_seleccionado = request.form.get('doctor')
+        cur.execute("INSERT INTO public.citas (id_paciente, id_medico, procedimiento, fecha, hora, notas) VALUES(%s, %s, %s, %s, %s, %s);",
+                    (paciente_seleccionado, doctor_seleccionado, formNewApointment.apointment_procedure.data,formNewApointment.apointment_date.data, formNewApointment.apointment_hour.data, formNewApointment.apointment_notes.data))
+        cur.execute("INSERT INTO public.historial_clinico (diagnostico,pruebas_complementarias, tratamiento, notas, paciente_dni, fecha, hora) VALUES (%s,%s, %s, %s, %s, %s, %s)",
+            ("sin establecer","sin establecer",formNewApointment.apointment_procedure.data, formNewApointment.apointment_notes.data, paciente_seleccionado, formNewApointment.apointment_date.data, formNewApointment.apointment_hour.data))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('citas'))
+
+@app.route('/deleteapointment/<id>', methods=['GET','POST'])
+def delete_apointment(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM citas WHERE id_cita = %s",(id,))
+    cur.close()
+    conn.commit()
+    conn.close()
+    return redirect(url_for('citas'))
+
+@app.route('/search_apointments', methods=['GET', 'POST'])
+def search_apointments():
+    formSearchApointment = SearchApointmentForm()
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("""
+                    SELECT c.id_cita, p.paciente_nombre AS nombre_paciente, p.paciente_apellidos AS apellidos_paciente,
+                        e.emp_name AS nombre_medico, e.emp_surname AS apellido_medico,
+                        c.procedimiento, c.fecha, c.hora, c.notas
+                    FROM citas c
+                    JOIN pacientes p ON c.id_paciente = p.DNI
+                    JOIN employees e ON c.id_medico = e.id_employee
+                    WHERE c.id_paciente = %s
+                    ORDER BY c.fecha ASC, c.hora ASC
+                """, (request.form.get('paciente'),))
+    pacient_data = cur.fetchall()
+    cur.close()
+    conn.commit()
+    conn.close()
+    return render_template('search_apointments.html', title='Pacientes', pacient_data = pacient_data, formSearchApointment = formSearchApointment)
+
+def search_pacients():
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("SELECT * from pacientes")
+    pacient_data = cur.fetchall()
+    cur.close()
+    conn.commit()
+    conn.close()
+    return pacient_data
+
+def search_doctors():
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("SELECT id_employee, emp_name, emp_surname from employees")
+    doctors_data = cur.fetchall()
+    cur.close()
+    conn.commit()
+    conn.close()
+    return doctors_data
+
+@app.route("/pacientes", methods=['GET', 'POST'])
+def patients(): 
+    if current_user.is_authenticated:
+        formNewPatient = NewPatientForm()
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("SELECT DNI, paciente_nombre, paciente_apellidos from pacientes")
+        patients_data = cur.fetchall()
+        cur.close()
+        conn.commit()
+        conn.close()
+        return render_template('patients.html', title='Pacientes', formNewPatient = formNewPatient, patients_data = patients_data)
+    
+@app.route("/add_patient", methods=['GET', 'POST'])
+def add_patient():
+    if current_user.is_authenticated:
+        formNewPatient = NewPatientForm()
+        conn = conector()
+        cur = conn.cursor()
+        cur.execute("INSERT INTO public.pacientes (dni, paciente_nombre, paciente_apellidos)VALUES(%s, %s, %s)",
+                    (formNewPatient.patient_dni.data,formNewPatient.patient_name.data, formNewPatient.patient_surname.data))
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('patients'))
+
+@app.route('/deletepatient/<id>', methods=['GET','POST'])
+def delete_patient(id):
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM pacientes WHERE dni = %s",(id,))
+    cur.close()
+    conn.commit()
+    conn.close()
+    return redirect(url_for('patients'))
+
+@app.route('/search_pacient', methods=['POST'])
+def search_patient():
+    formNewPatient = NewPatientForm()
+    formSearchPatient = SearchPatientForm()
+    conn = conector()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM pacientes WHERE dni = %s", (formSearchPatient.patient_dni.data,))
+    patient_dni = cur.fetchone()
+    cur.close()
+    conn.commit()
+    conn.close()
+
+    if patient_dni is None:
+        flash("No existe ese paciente", "error")
+        return redirect(url_for('patients'))
+    else:
+        # Realiza alguna acción con los datos del paciente encontrado
+        # y muestra la respuesta en la página correspondiente
+        #return render_template('patients_history.html', id=patient_dni, form=formSearchPatient)
+        return redirect(url_for('patients_history', id=patient_dni))
+
+@app.route('/patients_history<id>', methods=['GET', 'POST'])
+def patients_history(id):
+    conn = conector()
+    cur = conn.cursor()
+    lista = ast.literal_eval(id)
+    cur.execute("SELECT * FROM historial_clinico WHERE paciente_dni = %s", (lista[0],))
+    patients_history = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('patients_history.html', id=id, patients_history = patients_history)
+
 
 if __name__=='__main__':
     app.run(host='0.0.0.0')

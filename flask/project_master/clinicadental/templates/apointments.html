@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas</title>
+    <style>
+        .contenedor {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        .contenedor {
+            max-width: 1800px;
+            margin-left: 20px;
+            margin-right: 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #left {
+            float: left;
+        }
+
+        #right {
+            float: right;
+            width: 95%;
+        }
+
+        .icon-bar {
+            width: 75px;
+            /* Set a specific width */
+            background-color: #F8F9FA;
+            /* Dark-grey background */
+        }
+
+        .icon-bar a {
+            display: block;
+            /* Make the links appear below each other instead of side-by-side */
+            text-align: center;
+            /* Center-align text */
+            padding: 16px;
+            /* Add some padding */
+            transition: all 0.3s ease;
+            /* Add transition for hover effects */
+            color: rgb(153, 174, 153);
+            /* White text color */
+            font-size: 36px;
+            /* Increased font-size */
+        }
+
+        .icon-bar a.active {
+            color: #55ffb0;
+        }
+
+        #gestion-titulo button {
+            float: right;
+            margin-right: 6vh;
+            /* Alinear el botón a la derecha */
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+        <!-- Primero, carga jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Luego, carga el archivo JavaScript de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Finalmente, carga el resto de los estilos y archivos JavaScript -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Otros estilos y archivos JavaScript -->
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Inicio</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ">
+                    <!-- Parte derecha de la barra de navegación-->
+                    <div class="navbar-nav">
+                        {% if current_user.is_authenticated %}
+                            <a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
+                            <a class="nav-item nav-link" href="/pedidos">Pedidos</a>
+                            <a class="nav-item nav-link" href="/citas">Citas</a>
+                            <a class="nav-item nav-link" href="/pacientes">Pacientes</a>
+                            <a class="nav-item nav-link" href="/account">Tu cuenta</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                            <a class="nav-item nav-link" href="/logout">Salir</a>
+                        {% else %}
+                            <a class="nav-item nav-link" href="/login">Acceso</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                        {% endif %}
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="contenedor">
+        <div class="icon-bar" id="left">
+            <a href="#" onclick="mostrarContenido('empleados')" id="empleados-btn"><i class="fa fa-briefcase"></i></a>
+            <a href="#" data-bs-toggle="modal"
+            data-bs-target="#filtrar_citas" id="añadir_paciente_link">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="contenedor" id="right">
+        <div id="empleados">
+        </br>
+            <h3 id="gestion-titulo">
+                Listado de citas
+                <button type="button" class="btn btn-secondary btn-xs" data-bs-toggle="modal"
+                    data-bs-target="#añadir_cita">
+                    Crear cita
+                </button>
+            </h3>
+            <div class="jumbotron">
+                <table class="table table-hover ">
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                        <th>Procedimiento</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Notas</th>
+                        <th>Acciones</th>
+                    </tr>
+                    {% for row in apointments %}
+                    <tr>
+                        <td>{{row[1]}} {{row[2]}}</td>
+                        <td>{{row[3]}} {{row[4]}}</td>
+                        <td>{{row[5]}}</td>
+                        <td>{{row[6]}}</td>
+                        <td>{{row[7]}}</td>
+                        <td>{{row[8]}}</td>
+                        <td>
+                            <a href="update_apointment/{{row[0]}}" class="btn btn-success btn-xs">Editar</a>
+                            <a href="deleteapointment/{{row[0]}}" class="btn btn-danger btn-xs"
+                                onclick="return confirm('¿Quieres eliminar esta cita? Esta acción es permanente')">Borrar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div id="ajustes" style="display:none;">
+        </div>
+        <div id="productos" style="display:none;">
+        </div>
+        <div id="horario" style="display:none;">
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="añadir_cita" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Crear nuevo pedido</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="/add_apointment">
+                        <fieldset class="form-group">
+                            <div>
+                                Seleccione un paciente:
+                                <select name="paciente">
+                                    <option value="" selected>Seleccione...</option>
+                                    {% for row in patients_data %}
+                                    <option value="{{ row[0] }}">{{ row[1] }} {{row[2]}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            </br>
+                            <div>
+                                Seleccione un doctor:
+                                <select name="doctor">
+                                    <option value="" selected>Seleccione...</option>
+                                    {% for row in doctors_data %}
+                                    <option value="{{ row[0] }}">{{ row[1] }} {{row[2]}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            </br>
+                            <div class="form-group textbox-container">
+                                {{ formNewApointment.apointment_procedure.label(class="form-control-label") }}:
+
+                                {% if formNewApointment.apointment_procedure.errors %}
+                                {{ formNewApointment.apointment_procedure(class="form-control form-control-lg
+                                is-invalid") }}
+                                <div class="invalid-feedback textbox-container">
+                                    {% for error in formNewApointment.apointment_procedure.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ formNewApointment.apointment_procedure(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-group textbox-container">
+                                {{ formNewApointment.apointment_date.label(class="form-control-label") }}:
+
+                                {% if formNewApointment.apointment_date.errors %}
+                                {{ formNewApointment.apointment_date(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback textbox-container">
+                                    {% for error in formNewApointment.apointment_date.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ formNewApointment.apointment_date(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-group textbox-container">
+                                {{ formNewApointment.apointment_hour.label(class="form-control-label") }}:
+
+                                {% if formNewApointment.apointment_hour.errors %}
+                                {{ formNewApointment.apointment_hour(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback textbox-container">
+                                    {% for error in formNewApointment.apointment_hour.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ formNewApointment.apointment_hour(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-group textbox-container">
+                                {{ formNewApointment.apointment_notes.label(class="form-control-label") }}:
+
+                                {% if formNewApointment.apointment_notes.errors %}
+                                {{ formNewApointment.apointment_notes(class="form-control form-control-lg is-invalid")
+                                }}
+                                <div class="invalid-feedback textbox-container">
+                                    {% for error in formNewApointment.apointment_notes.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ formNewApointment.apointment_notes(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                        <br />
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="submit">Añadir cita</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="filtrar_citas" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Filtrar citas</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="/search_apointments">
+                        <fieldset class="form-group">
+                            <div>
+                                Seleccione un paciente:
+                                <select name="paciente">
+                                    <option value="" selected>Seleccione...</option>
+                                    {% for row in patients_data %}
+                                    <option value="{{ row[0] }}">{{ row[1] }} {{row[2]}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </fieldset>
+                        <br />
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="submit">Buscar cita</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+
+    <script>
+        function mostrarContenido(opcionSeleccionada) {
+            var empleadosBtn = document.getElementById('empleados-btn');
+            var ajustesBtn = document.getElementById('ajustes-btn');
+            var productosBtn = document.getElementById('productos-btn');
+            var horarioBtn = document.getElementById('horario-btn');
+
+            if (opcionSeleccionada === 'empleados') {
+                document.getElementById('empleados').style.display = "block";
+                document.getElementById('ajustes').style.display = "none";
+                document.getElementById('productos').style.display = "none";
+                document.getElementById('horario').style.display = "none";
+                empleadosBtn.classList.add("active");
+                ajustesBtn.classList.remove("active");
+                horarioBtn.classList.remove("active");
+                productosBtn.classList.remove("active");
+            } else if (opcionSeleccionada === 'ajustes') {
+                document.getElementById('empleados').style.display = "none";
+                document.getElementById('ajustes').style.display = "block";
+                document.getElementById('productos').style.display = "none";
+                document.getElementById('horario').style.display = "none";
+                empleadosBtn.classList.remove("active");
+                ajustesBtn.classList.add("active");
+                horarioBtn.classList.remove("active");
+                productosBtn.classList.remove("active");
+            } else if (opcionSeleccionada === 'productos') {
+                document.getElementById('empleados').style.display = "none";
+                document.getElementById('ajustes').style.display = "none";
+                document.getElementById('productos').style.display = "block";
+                document.getElementById('horario').style.display = "none";
+                empleadosBtn.classList.remove("active");
+                ajustesBtn.classList.remove("active");
+                horarioBtn.classList.remove("active");
+                productosBtn.classList.add("active");
+            } else if (opcionSeleccionada === 'horario') {
+                document.getElementById('empleados').style.display = "none";
+                document.getElementById('ajustes').style.display = "none";
+                document.getElementById('productos').style.display = "none";
+                document.getElementById('horario').style.display = "block";
+                empleadosBtn.classList.remove("active");
+                ajustesBtn.classList.remove("active");
+                productosBtn.classList.remove("active");
+                horarioBtn.classList.add("active");
+
+            }
+        }
+
+
+    </script>
+
+    
+
+</body>
+
+</html>

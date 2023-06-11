@@ -116,6 +116,11 @@
             float: right;
             width: 95%;
         }
+
+        #ajustes {
+            padding-left: 20px;
+            /* Ajusta el valor según tus necesidades */
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -137,16 +142,16 @@
                     <!-- Parte derecha de la barra de navegación-->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                        <a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
-                        <a class="nav-item nav-link" href="/pedidos">Pedidos</a>
-                        <a class="nav-item nav-link" href="/citas">Citas</a>
-                        <a class="nav-item nav-link" href="/pacientes">Pacientes</a>
-                        <a class="nav-item nav-link" href="/account">Tu cuenta</a>
-                        <a class="nav-item nav-link" href="/register">Registro empleados</a>
-                        <a class="nav-item nav-link" href="/logout">Salir</a>
+                            <a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
+                            <a class="nav-item nav-link" href="/pedidos">Pedidos</a>
+                            <a class="nav-item nav-link" href="/citas">Citas</a>
+                            <a class="nav-item nav-link" href="/pacientes">Pacientes</a>
+                            <a class="nav-item nav-link" href="/account">Tu cuenta</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                            <a class="nav-item nav-link" href="/logout">Salir</a>
                         {% else %}
-                        <a class="nav-item nav-link" href="/login">Acceso</a>
-                        <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                            <a class="nav-item nav-link" href="/login">Acceso</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
                         {% endif %}
                     </div>
                 </ul>
@@ -161,7 +166,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <div id="contenedor">
         <div class="icon-bar" id="left">
-            <a href="#" onclick="mostrarContenido('empleados')" id="empleados-btn"><i class="fa fa-briefcase"></i></a>
+            <a href="#" onclick="mostrarContenido('empleados')" id="empleados-btn"><i class="fa-solid fa-user-tie"></i></a>
             <a href="#" onclick="mostrarContenido('ajustes')" id="ajustes-btn"><i class="fa fa-gear"></i></a>
             <a href="#" onclick="mostrarContenido('productos')" id="productos-btn"><i
                     class="fa fa-money-bill-trend-up"></i></a>
@@ -191,9 +196,9 @@
                         <td>{{row[2]}}</td>
                         <td>{{row[3]}}</td>
                         <td>
-                            <a href="modifyemp/{{row[0]}}" class="btn btn-success btn-xs">Edit</a>
+                            <a href="modifyemp/{{row[0]}}" class="btn btn-success btn-xs">Editar</a>
                             <a href="/deleteemp/{{row[0]}}" class="btn btn-danger btn-xs"
-                                onclick="return confirm('¿Quieres borrar este empleado? Esta acción es permanente')">Delete</a>
+                                onclick="return confirm('¿Quieres borrar este empleado? Esta acción es permanente')">Borrar</a>
                             <button onclick="window.location.href='/schedule/{{row[0]}}'" type="button"
                                 class="btn btn-warning btn-xs">
                                 <i class="fa-solid fa-hourglass" style="color: #fafafa;"></i>
@@ -222,21 +227,21 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="exampleCheck1">
                     <label class="form-check-label" for="exampleCheck1">
-                        Configuración 2
+                        Ocultar salario
                     </label>
                 </div>
                 <br />
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="exampleCheck1">
                     <label class="form-check-label" for="exampleCheck1">
-                        Configuración 3
+                        Recalcular ventas totales
                     </label>
                 </div>
                 <br />
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="exampleCheck1">
                     <label class="form-check-label" for="exampleCheck1">
-                        Configuración 4
+                        Activar formato hh:mm en horarios
                     </label>
                 </div>
                 <br />
@@ -449,7 +454,7 @@
                                 {% endif %}
                             </div>
                             <div>
-                                User id:  
+                                User id:
                                 <select id="usuario" name="user">
                                     {% for row in users %}
                                     <option value="{{ row[0] }}">{{ row[1] }}</option>

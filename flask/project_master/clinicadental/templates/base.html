@@ -15,35 +15,30 @@
             margin: 0;
         }
 
-        .left {
-            float: left;
-            width: 50%;
-        }
-
-        .right {
-            float: right;
-            width: 50%;
-        }
-
         .container::after {
             content: "";
             display: table;
             clear: both;
         }
 
-        .left,
-        .right {
-            width: 50%;
-            box-sizing: border-box;
-            padding: 10px;
+        .avisos {
+            margin-left: 3vh;
         }
 
-        .left {
-            background-color: #f0f0f0;
+
+
+        .contavisos {
+            background-color: rgb(182, 248, 202);
         }
 
-        .right {
-            background-color: #e0e0e0;
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f8f8f8;
+            text-align: center;
+            background-color: rgb(195, 195, 195);
         }
     </style>
     <!-- Agregar Bootstrap CSS -->
@@ -64,54 +59,52 @@
                     <!-- Parte derecha de la barra de navegación-->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                            <a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
-                            <a class="nav-item nav-link" href="/pedidos">Pedidos</a>
-                            <a class="nav-item nav-link" href="/citas">Citas</a>
-                            <a class="nav-item nav-link" href="/pacientes">Pacientes</a>
-                            <a class="nav-item nav-link" href="/account">Tu cuenta</a>
-                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
-                            <a class="nav-item nav-link" href="/logout">Salir</a>
+                        <a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
+                        <a class="nav-item nav-link" href="/pedidos">Pedidos</a>
+                        <a class="nav-item nav-link" href="/citas">Citas</a>
+                        <a class="nav-item nav-link" href="/pacientes">Pacientes</a>
+                        <a class="nav-item nav-link" href="/account">Tu cuenta</a>
+                        <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                        <a class="nav-item nav-link" href="/logout">Salir</a>
                         {% else %}
-                            <a class="nav-item nav-link" href="/login">Acceso</a>
-                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                        <a class="nav-item nav-link" href="/login">Acceso</a>
+                        <a class="nav-item nav-link" href="/register">Registro empleados</a>
                         {% endif %}
                     </div>
                 </ul>
             </div>
         </div>
     </nav>
-    <div>
-        <div class="left">
-            <h2>Avisos:</h2>
-            <br>
-            <b>Importante:</b> recuerda fichar antes de empezar a trabajar.<br/>
-            <b>Actualización Covid-19: </b>
-            <ul>
-                <li>Uso de máscarilla obligatorio</li>
-                <li>Redecilla de pelo obligatoria</li>
-                <li>Mamparas y distancia de seguridad</li>
-                <li>Desinfección de boxes despues de cada cita</li>
-            </ul>
+    <div class="contenedor">
+        <div class="contavisos">
+            <div class="avisos">
+                <h2>Avisos:</h2>
+                <b>Importante:</b> recuerda fichar antes de empezar a trabajar.<br />
+                <b>Actualización Covid-19: </b>
+                <ul>
+                    <li>Uso de máscarilla obligatorio</li>
+                    <li>Redecilla de pelo obligatoria</li>
+                    <li>Mamparas y distancia de seguridad</li>
+                    <li>Desinfección de boxes despues de cada cita</li>
+                </ul>
+            </div>
+            <hr>
         </div>
-        <div class="right">
+        <div>
             <h2>Citas próximas:</h2>
-            <br>
+            {% for row in citas_data %}
             <ul>
-                <li>10.30 - Ajuste de brackets --> Pablo Calvo</li>
-                <li>11.00 - Endodoncia multirradicular --> Pablo Calvo</li>
-                <li>11.00 - Profilaxis dental --> Armando Zenteno</li>
-                <li>11.15 - Endodoncia correctiva --> Marcos Salinas</li>
-                <li>12.00 - Radiografía dental --> Pablo Calvo</li>
-                <li>12.00 - Maloclusión dental --> Marcos Salinas</li>
+                <li>Hora: <b>{{row[7]}}</b> Doctor: {{row[3]}} {{row[4]}} Paciente: {{row[1]}} {{row[2]}}</li>
             </ul>
+            {% endfor %}
         </div>
     </div>
-
-    <div>
-        <h2>Eventos:</h2>
-        <ul>
-            <li> 28-Mayo-2023 Revisión de contratos</li>
-        </ul>
+    <div class="footer">
+        <p style="margin-top: 1vh;">
+        © 2023 Clínica Dental<br>
+        Creado por soluciones empresariales SL<br>
+        Todos los derechos reservados
+        </p>
     </div>
 
 

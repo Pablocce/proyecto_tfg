@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 #tipo de dato y meter dominios dentro
-from wtforms import StringField , PasswordField, SubmitField, BooleanField, IntegerField, DecimalField
+from wtforms import StringField , PasswordField, SubmitField, BooleanField, IntegerField, DecimalField, DateField, TimeField, TextAreaField
 #importamos validadores
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, AnyOf, Regexp
 import email_validator
@@ -49,10 +49,10 @@ class RegistrationForm(FlaskForm):
 
 #formulario para el login de usuarios
 class LoginForm(FlaskForm):
-    username = StringField('Username', 
+    username = StringField('Nombre de usuario', 
                             validators=[DataRequired(), Length(min=5, max=20)]) #DataRequired() chequea que el field no este vacio
     
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Contraseña', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
 
     submit = SubmitField('Acceder')
@@ -120,3 +120,44 @@ class ChangeProductStock(FlaskForm):
 class AddNewSupplier(FlaskForm):
     supplier_name = StringField('Nombre de la empresa', validators=[DataRequired()])
     submit = SubmitField('Cambiar stock')
+
+
+class NewAppointmentFrom(FlaskForm):
+    related_doctor=StringField('Nombre del doctor', validators=[DataRequired()])
+    pacient_name =StringField('Nombre del paciente', validators=[DataRequired()])
+    pacient_surname =StringField("Primer apellido",validators=[DataRequired()])
+    description= StringField('Descripcion de la cita', validators=[DataRequired()])
+    date=StringField('Fecha de la cita', validators=[DataRequired()])
+
+    submit = SubmitField('Cita creada')
+
+
+class NewPatientForm(FlaskForm):
+    patient_dni=StringField("Dni del paciente",validators=[DataRequired()])
+    patient_name=StringField("Nombre del paciente",validators=[DataRequired()])
+    patient_surname=StringField("Apellidos",validators=[DataRequired()])
+
+    submit = SubmitField('Paciente registrado')
+
+class SearchPatientForm(FlaskForm):
+    patient_dni=StringField("Dni del paciente",validators=[DataRequired()])
+
+    submit = SubmitField('Paciente registrado')
+
+
+class NewApointmentForm(FlaskForm):
+    apointment_procedure = TextAreaField('Procedimiento',validators=[DataRequired()])
+    apointment_date = DateField('Fecha de la cita',validators=[DataRequired()])
+    apointment_hour = TimeField('Hora de la cita', validators=[DataRequired()])
+    apointment_notes = TextAreaField('Notas',validators=[DataRequired()])
+    submit = SubmitField('Añadir cita')
+
+class SearchApointmentForm(FlaskForm):
+    patient_dni =StringField("Dni del paciente",validators=[DataRequired()])
+    submit = SubmitField('Buscar')
+
+class UpdateApointmentForm(FlaskForm):
+    apointment_date = DateField('Nueva fecha de la cita',validators=[DataRequired()])
+    apointment_hour = TimeField('Nueva hora de la cita', validators=[DataRequired()])
+
+    submit = SubmitField('Modificar cita')

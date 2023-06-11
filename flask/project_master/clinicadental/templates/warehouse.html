@@ -185,36 +185,33 @@
 
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<div class="container-fluid">
-			<a class="navbar-brand" href="/">Inicio</a>
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-				aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarNav">
-				<ul class="navbar-nav">
-					<li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="/pedidos">Pedidos</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Citas</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Pacientes</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="/register">Registro empleados</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</nav>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Inicio</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ">
+                    <!-- Parte derecha de la barra de navegación-->
+                    <div class="navbar-nav">
+                        {% if current_user.is_authenticated %}
+                            <a class="nav-link active" aria-current="page" href="/gestion">Gestión</a>
+                            <a class="nav-item nav-link" href="/pedidos">Pedidos</a>
+                            <a class="nav-item nav-link" href="/citas">Citas</a>
+                            <a class="nav-item nav-link" href="/pacientes">Pacientes</a>
+                            <a class="nav-item nav-link" href="/account">Tu cuenta</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                            <a class="nav-item nav-link" href="/logout">Salir</a>
+                        {% else %}
+                            <a class="nav-item nav-link" href="/login">Acceso</a>
+                            <a class="nav-item nav-link" href="/register">Registro empleados</a>
+                        {% endif %}
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
 	<!-- Add icon library -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -222,11 +219,10 @@
 		crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<div class="icon-bar" id="left">
-		<a href="#" onclick="mostrarContenido('pedidos')" id="pedidos-btn"><i class="fa fa-briefcase"></i></a>
+		<a href="#" onclick="mostrarContenido('pedidos')" id="pedidos-btn"><i class="fa-solid fa-truck-moving"></i></a>
 		<a href="#" onclick="mostrarContenido('ajustes')" id="ajustes-btn"><i class="fa fa-gear"></i></a>
-		<a href="#" onclick="mostrarContenido('productos')" id="productos-btn"><i
-				class="fa fa-money-bill-trend-up"></i></a>
-		<a href="#" onclick="mostrarContenido('empresas')" id="empresas-btn"><i class="fa fa-calendar-check"></i></a>
+		<a href="#" onclick="mostrarContenido('productos')" id="productos-btn"><i class="fa-solid fa-warehouse"></i></a>
+		<a href="#" onclick="mostrarContenido('empresas')" id="empresas-btn"><i class="fa-solid fa-building"></i></a>
 	</div>
 	<div id="contenedor">
 		<div id="pedidos" class="expandir">
@@ -246,9 +242,9 @@
 					<tr id="arriba">
 						<td id="id_producto" rowspan="2">P{{row[0]}}</td>
 						<td id="nombreProduc"> {{row[1]}}</td>
-						<td id="precioUnidad"> {{row[2]}}€</td>
+						<td id="precioUnidad"> {{row[2]}}€/ud</td>
 						<td id="Cantidad"> {{row[3]}} unidades</td>
-						<td id="precioTotalUnidad"> {{row[2]*row[3]}}€</td>
+						<td id="precioTotalUnidad"> Total: {{row[2]*row[3]}}€</td>
 					</tr>
 					<tr id="abajo">
 						<td id="nombreEmpresayfecha">Company {{row[6]}} {{row[5]}}</td>
@@ -264,7 +260,40 @@
 			</div>
 		</div>
 		<div id="ajustes" class="expandir" style="display:none;">
-			esto son ajustes
+			<div>
+                <center>
+                    <h2>Ajustes de usuario:</h2>
+                </center>
+                <br />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">
+                        Habilitar tema oscuro
+                    </label>
+                </div>
+                <br />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">
+                        Ocultar salario
+                    </label>
+                </div>
+                <br />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">
+                        Recalcular ventas totales
+                    </label>
+                </div>
+                <br />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">
+                        Activar formato hh:mm en horarios
+                    </label>
+                </div>
+                <br />
+            </div>
 		</div>
 		<div id="productos" class="expandir" style="display:none;">
 			<table class="table ">
@@ -287,7 +316,7 @@
 					<td>
 						<div id="edit-form-{{ row[0] }}" style="display: flex; align-items: center;">
 							<span style="margin-right: auto;">{{ row[1] }}$</span>
-							<a href="/actualizar_precio/{{ row[0] }}" class="btn btn-success btn-xs">
+							<a href="/actualizar_precio/{{ row[0] }}" class="btn  btn-xs">
 								<i class="fa-solid fa-square-pen"></i>
 							</a>
 						</div>
@@ -295,14 +324,15 @@
 					<td>
 						<div id="edit-form-{{ row[4] }}" style="display: flex; align-items: center;">
 							<span style="margin-right: auto;">{{ row[4] }} uds</span>
-							<a href="/actualizar_stock/{{ row[0] }}" class="btn btn-success btn-xs">
+							<a href="/actualizar_stock/{{ row[0] }}" class="btn  btn-xs">
 								<i class="fa-solid fa-square-pen"></i>
 							</a>
 						</div>
 					</td>
 					<td>{{ row[5] }}</td>
 					<td><a href="/deleteproduct/{{row[0]}}" class="btn btn-danger btn-xs"
-						onclick="return confirm('¿Quieres borrar este producto? Si hay una orden con este producto, se eliminara.  Esta acción es permanente')">Delete</a></td>
+							onclick="return confirm('¿Quieres borrar este producto? Si hay una orden con este producto, se eliminara.  Esta acción es permanente')">Borrar</a>
+					</td>
 				</tr>
 				{% endfor %}
 
@@ -329,7 +359,8 @@
 					<td>{{row[0]}}</td>
 					<td>{{row[1]}}</td>
 					<td><a href="/deletesupplier/{{row[0]}}" class="btn btn-danger btn-xs"
-						onclick="return confirm('¿Quieres borrar esta empresa? Si hay una orden o producto con esta empresa, se eliminara.  Esta acción es permanente')">Borrar</a></td>
+							onclick="return confirm('¿Quieres borrar esta empresa? Si hay una orden o producto con esta empresa, se eliminara.  Esta acción es permanente')">Borrar</a>
+					</td>
 				</tr>
 				{% endfor %}
 			</table>
@@ -351,6 +382,7 @@
 							<div>
 								Seleccione un proveedor:
 								<select name="proveedor">
+									<option value="" selected>Seleccione...</option>
 									{% for row in empresas_data %}
 									<option value="{{ row[0] }}">{{ row[1] }}</option>
 									{% endfor %}
@@ -393,13 +425,43 @@
 		</div>
 
 	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			// Obtener referencias a los elementos del formulario
+			var proveedorSelect = document.querySelector('select[name="proveedor"]');
+			var productoSelect = document.querySelector('select[name="producto"]');
+
+			// Obtener todas las opciones de productos
+			var opcionesProductos = Array.from(productoSelect.options);
+
+			// Asignar evento onchange al campo de selección del proveedor
+			proveedorSelect.onchange = function () {
+				var proveedorSeleccionado = proveedorSelect.value;
+
+				// Filtrar las opciones de productos según el proveedor seleccionado
+				var opcionesFiltradas = opcionesProductos.filter(function (opcion) {
+					return opcion.getAttribute('data-empresa') === proveedorSeleccionado;
+				});
+
+				// Vaciar el campo de selección de productos
+				productoSelect.innerHTML = '';
+
+				// Agregar las opciones filtradas al campo de selección de productos
+				opcionesFiltradas.forEach(function (opcion) {
+					productoSelect.appendChild(opcion);
+				});
+			};
+		});
+	</script>
+
+
 
 	<div class="modal fade" id="añadir_producto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
 		aria-hidden="ture">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Crear nuevo pedido</h5>
+					<h5 class="modal-title" id="exampleModalLabel">Registrar nuevo producto</h5>
 				</div>
 				<div class="modal-body">
 					<form method="post" action="/add_product">
@@ -461,7 +523,7 @@
 						</fieldset>
 						<br />
 						<div class="form-group">
-							<button class="btn btn-primary" type="submit">Añadir pedido</button>
+							<button class="btn btn-primary" type="submit">Registrar producto</button>
 						</div>
 					</form>
 
@@ -562,7 +624,6 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-Gy4Q+YAFv5BXzynKC8PfdZKbQ5pr1vLXLdWt8Xj05ePpjCilcbvID+TGnyx8InMh"
 		crossorigin="anonymous"></script>
-
 	<script>
 		function mostrarProductos() {
 			var proveedorSeleccionado = document.getElementById("proveedor").value;
@@ -585,8 +646,6 @@
 
 		mostrarProductos(); // Mostrar productos correspondientes al proveedor seleccionado al cargar la página
 	</script>
-
-
 	</div>
 </body>
 
